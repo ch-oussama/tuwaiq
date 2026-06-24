@@ -39,8 +39,17 @@ export default function RootLayout({
         <LenisProvider>
           <AuthProvider>
             <CustomCursor />
+            <div 
+              className="fixed inset-0 pointer-events-none z-0 opacity-[0.07]" 
+              style={{ 
+                backgroundImage: 'url(/image.png)', 
+                backgroundSize: 'cover', 
+                backgroundPosition: 'center', 
+                backgroundAttachment: 'fixed',
+                backgroundRepeat: 'no-repeat'
+              }} 
+            />
             <AbstractScene />
-            
             <Navbar />
             {/* Filmstrip camera scroll animation — fixed overlay */}
             <FilmstripCamera />

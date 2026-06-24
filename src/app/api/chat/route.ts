@@ -2,6 +2,8 @@ import { getPackages } from '@/lib/db';
 import { NextResponse } from 'next/server';
 import { checkRateLimit } from '@/lib/rate-limit';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: Request) {
   const ip = req.headers.get('x-forwarded-for') || '127.0.0.1';
   const { allowed, retryAfter } = checkRateLimit(ip);
