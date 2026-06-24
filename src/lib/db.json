@@ -1,0 +1,53 @@
+{
+  "packages": [
+    {
+      "id": "1",
+      "title": "باقة التصميم الاحترافي",
+      "description": "تصميم واجهات مستخدم وتجربة مستخدم (UI/UX) احترافية وعصرية لمختلف التطبيقات.",
+      "shortDescription": "واجهات مستخدم احترافية",
+      "price": 100,
+      "thumbnailUrl": "https://images.unsplash.com/photo-1561070791-2526d30994b5?q=80&w=800&auto=format&fit=crop",
+      "images": [
+        "https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?q=80&w=800&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1542744094-3a31f272c490?q=80&w=800&auto=format&fit=crop"
+      ],
+      "features": [
+        "تصميم حتى 10 شاشات",
+        "تسليم الملفات المصدرية",
+        "مرونة في التعديلات"
+      ],
+      "reviews": [
+        {
+          "id": "r1",
+          "author": "محمد الخالدي",
+          "rating": 5,
+          "content": "عمل ممتاز وتصميم فاق التوقعات، شكراً على الإبداع."
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "title": "باقة التطوير المتكامل",
+      "description": "برمجة وتطوير منصات إلكترونية متكاملة من الصفر باستخدام أحدث التقنيات وأفضل ممارسات الأداء.",
+      "shortDescription": "تطوير مواقع الويب المتكاملة",
+      "price": 300,
+      "thumbnailUrl": "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=800&auto=format&fit=crop",
+      "images": [
+        "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=800&auto=format&fit=crop"
+      ],
+      "features": [
+        "برمجة الواجهات الأمامية والخلفية",
+        "توافق تام مع مختلف الأجهزة",
+        "دعم فني لمدة شهر مجاناً"
+      ],
+      "reviews": [
+        {
+          "id": "r2",
+          "author": "شركة الرواد",
+          "rating": 5,
+          "content": "فريق عمل مميز وبرمجة احترافية ومرنة، ننصح بالتعامل معهم بشدة."
+        }
+      ]
+    }
+  ]
+}
