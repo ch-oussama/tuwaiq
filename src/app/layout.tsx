@@ -4,7 +4,6 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import GeminiWidget from "@/components/GeminiWidget";
 import FilmstripCamera from "@/components/FilmstripCamera";
-import CustomCursor from "@/components/CustomCursor";
 import LenisProvider from "@/components/LenisProvider";
 import AbstractScene from "@/components/AbstractScene";
 import { AuthProvider } from "@/lib/AuthContext";
@@ -42,7 +41,6 @@ export default function RootLayout({
           <LenisProvider>
             <AuthProvider>
               <BranchProvider>
-                <CustomCursor />
                 <ClientAppWrapper>
                   <Navbar />
                   <main className="flex-grow pt-20 relative z-10">

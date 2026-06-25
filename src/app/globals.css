@@ -44,12 +44,12 @@
   --surface-hover: #242424;
   --border: #2E2E2E;
 
-  --brand-brown: #F0C040;      /* Gold takes over primary color role */
-  --brand-brown-light: #C8A020;
-  --brand-beige: #1A1A1A;      /* Reversing contrast for cards/buttons */
-  --brand-nude: #111111;
+  --brand-brown: #000000;      /* Keep brown semantic as darkest color for backgrounds */
+  --brand-brown-light: #1A1A1A;
+  --brand-beige: #F5E8C0;      /* Keep beige semantic as light color for text */
+  --brand-nude: #0D0D0D;
   --brand-nude-dark: #222222;
-  --brand-gold: #F0C040;
+  --brand-gold: #F0C040;       /* Gold stands out clearly now */
 
   --nav-bg: rgba(10, 10, 10, 0.92);
 }
