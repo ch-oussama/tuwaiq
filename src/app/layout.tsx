@@ -21,9 +21,11 @@ export const metadata: Metadata = {
   title: "Tuwaiq Studio | أستوديو طويق للخدمات الرقمية",
   description: "خدمات رقمية فاخرة، تصميم وتطوير بأعلى معايير الجودة.",
   icons: {
-    icon: "/logo.png",
-    apple: "/logo.png",
-    shortcut: "/logo.png",
+    icon: [
+      { url: "/logo design.webp", type: "image/webp" },
+    ],
+    apple: "/logo design.webp",
+    shortcut: "/logo design.webp",
   }
 };
 

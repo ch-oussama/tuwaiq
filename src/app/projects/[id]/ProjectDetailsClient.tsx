@@ -131,7 +131,7 @@ export default function ProjectDetailsClient({ projectId }: { projectId: string 
                 <span className="inline-block bg-brand-gold text-brand-brown px-4 py-1.5 rounded-full text-sm font-black shadow-sm mb-4">
                   {project.category}
                 </span>
-                <h1 className="text-5xl md:text-7xl font-black text-brand-brown leading-tight">
+                <h1 className="text-5xl md:text-7xl font-black text-foreground leading-tight">
                   {project.title}
                 </h1>
               </div>
@@ -139,7 +139,7 @@ export default function ProjectDetailsClient({ projectId }: { projectId: string 
               {/* Description + Tags Row */}
               <div className="flex flex-col md:flex-row gap-8 mt-8 pb-10 border-b border-border">
                 <div className="flex-1">
-                  <p className="text-lg text-brand-brown/70 leading-relaxed">
+                  <p className="text-lg text-foreground/80 leading-relaxed">
                     {project.description}
                   </p>
                   <Link
@@ -209,8 +209,8 @@ export default function ProjectDetailsClient({ projectId }: { projectId: string 
               viewport={{ once: true }}
               className="text-center mt-20 border-t border-border pt-16"
             >
-              <p className="text-2xl font-black text-brand-brown mb-2">أعجبك هذا العمل؟</p>
-              <p className="text-foreground/60 mb-8">تواصل معنا وابدأ مشروعك الخاص</p>
+              <p className="text-2xl font-black text-foreground mb-2">أعجبك هذا العمل؟</p>
+              <p className="text-foreground/70 mb-8">تواصل معنا وابدأ مشروعك الخاص</p>
               <Link
                 href="/packages"
                 className="inline-block px-12 py-4 bg-brand-gold text-brand-brown font-black text-lg rounded-full hover:scale-105 transition-transform shadow-2xl"

@@ -25,7 +25,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => unsubscribe();
   }, []);
 
-  const isAdmin = user?.email?.toLowerCase() === "godiabout57@gmail.com".toLowerCase();
+  // أضف أي إيميلات إدارية جديدة هنا داخل هذه القائمة
+  const adminEmails = [
+    "godiabout57@gmail.com",
+    // "email2@gmail.com",
+  ];
+
+  const isAdmin = user?.email ? adminEmails.includes(user.email.toLowerCase()) : false;
 
   return (
     <AuthContext.Provider value={{ user, loading, isAdmin }}>
