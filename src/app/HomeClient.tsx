@@ -4,6 +4,7 @@ import { motion, AnimatePresence, useScroll, useTransform, useMotionTemplate, us
 import Link from 'next/link';
 import { Package } from '@/lib/db';
 import { DUMMY_PACKAGES, DUMMY_REVIEWS } from '@/lib/dummyData';
+import { useBranch } from '@/lib/BranchContext';
 import { Star, ArrowUpLeft, Hexagon, Quote } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 
@@ -54,7 +55,14 @@ const MagneticButton = ({ children, className }: { children: React.ReactNode, cl
 };
 
 export default function HomeClient({ packages }: { packages: Package[] }) {
-  const displayPackages = packages.length > 0 ? packages : DUMMY_PACKAGES;
+  const { branch } = useBranch();
+  const allPackages = packages.length > 0 ? packages : DUMMY_PACKAGES;
+  const displayPackages = allPackages.filter(p => !p.branch || p.branch === branch);
+  
+  // Grab reviews from filtered packages, fallback to dummy
+  const branchReviews = displayPackages.flatMap(p => p.reviews || []);
+  const activeReviews = branchReviews.length > 0 ? branchReviews : DUMMY_REVIEWS;
+
   const [activeReview, setActiveReview] = useState(0);
   const { scrollYProgress } = useScroll();
   
@@ -64,33 +72,34 @@ export default function HomeClient({ packages }: { packages: Package[] }) {
 
   // Auto-rotate reviews
   useEffect(() => {
+    setActiveReview(0);
     const interval = setInterval(() => {
-      setActiveReview(prev => (prev + 1) % DUMMY_REVIEWS.length);
+      setActiveReview(prev => (prev + 1) % activeReviews.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [activeReviews.length, branch]);
 
   return (
     <div className="flex flex-col w-full bg-noise relative overflow-clip">
       
       {/* ─── Hero Section (Avant-Garde Style) ─── */}
       <section className="relative min-h-[95vh] flex items-center justify-center pt-20 px-4 sm:px-8">
-        {/* Background Ambient Glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] bg-brand-gold/10 blur-[120px] rounded-full pointer-events-none" />
+        {/* Background Ambient Glow — commented out, uncomment to restore */}
+        {/* <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] bg-brand-gold/10 blur-[120px] rounded-full pointer-events-none" /> */}
         
         <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative z-10 w-full max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-12">
           
           {/* Main Title Area */}
-          <div className="flex-1 relative">
+          <div className="flex-1 relative z-20 flex flex-col md:items-center text-center">
             <motion.div
               custom={0} initial="hidden" animate="visible" variants={fadeUpObj}
               className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full border border-border bg-surface/50 backdrop-blur-md mb-8"
             >
               <Hexagon size={16} className="text-brand-gold animate-spin-slow" />
-              <span className="text-sm font-bold text-brand-brown/80 tracking-widest uppercase">أستوديو رقمي فاخر</span>
+              <span className="text-sm font-bold tracking-widest uppercase text-brand-gold">أستوديو رقمي فاخر</span>
             </motion.div>
             
-            <h1 className="text-6xl md:text-[5.5rem] lg:text-[7rem] font-black leading-[1.05] tracking-tight text-brand-brown mb-8 flex flex-col">
+            <h1 className="text-6xl md:text-[5.5rem] lg:text-[7rem] font-black leading-[1.05] tracking-tight mb-8 flex flex-col text-foreground">
               <span className="overflow-hidden pb-4">
                 <motion.span custom={1} initial="hidden" animate="visible" variants={maskRevealObj} className="block origin-bottom-left">
                   نصنع أثراً
@@ -103,11 +112,11 @@ export default function HomeClient({ packages }: { packages: Package[] }) {
               </span>
             </h1>
             
-            <motion.p custom={3} initial="hidden" animate="visible" variants={fadeUpObj} className="text-xl md:text-2xl font-medium text-brand-brown/70 max-w-xl mb-12 leading-relaxed">
+            <motion.p custom={3} initial="hidden" animate="visible" variants={fadeUpObj} className="text-xl md:text-2xl font-medium max-w-xl mb-12 leading-relaxed text-foreground/80">
               تجارب مستخدم استثنائية، هويات بصرية خالدة، ومنصات برمجية تفوق توقعات المستقبل.
             </motion.p>
             
-            <motion.div custom={4} initial="hidden" animate="visible" variants={fadeUpObj} className="flex flex-wrap gap-6 items-center">
+            <motion.div custom={4} initial="hidden" animate="visible" variants={fadeUpObj} className="flex flex-wrap gap-6 items-center justify-center">
               <MagneticButton>
                 <Link
                   href="/packages"
@@ -124,28 +133,7 @@ export default function HomeClient({ packages }: { packages: Package[] }) {
             </motion.div>
           </div>
 
-          {/* Hero Abstract Graphic */}
-          <motion.div custom={5} initial="hidden" animate="visible" variants={fadeUpObj} className="flex-1 w-full relative hidden md:flex justify-end">
-            <div className="relative w-[500px] h-[600px]">
-              {/* Overlapping glass cards */}
-              <motion.div 
-                animate={{ y: [0, -20, 0] }} 
-                transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-                className="absolute top-0 right-0 w-72 h-96 glass rounded-[3rem] overflow-hidden rotate-6 shadow-2xl border-white/20"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="https://images.unsplash.com/photo-1558655146-d09347e92766?q=80&w=600&auto=format&fit=crop" className="w-full h-full object-cover opacity-90 mix-blend-multiply" alt=""/>
-              </motion.div>
-              <motion.div 
-                animate={{ y: [0, 20, 0] }} 
-                transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-                className="absolute bottom-10 left-10 w-64 h-80 bg-brand-gold text-brand-brown rounded-[2.5rem] p-8 shadow-2xl rotate-[-3deg] flex flex-col justify-end"
-              >
-                <h3 className="text-4xl font-black mb-2">99%</h3>
-                <p className="font-bold opacity-80">رضا العملاء في جميع مشاريعنا حول العالم</p>
-              </motion.div>
-            </div>
-          </motion.div>
+
         </motion.div>
       </section>
 
@@ -167,7 +155,7 @@ export default function HomeClient({ packages }: { packages: Package[] }) {
               className="flex-1 space-y-8"
             >
               <h2 className="text-sm font-black text-brand-gold tracking-[0.2em] uppercase">رؤيتنا</h2>
-              <h3 className="text-4xl md:text-5xl font-black text-brand-brown leading-tight">
+              <h3 className="text-4xl md:text-5xl font-black leading-tight text-foreground">
                 لسنا مجرد مبرمجين، نحن <span className="italic text-brand-gold">مهندسو أحلامك الرقمية.</span>
               </h3>
               <p className="text-xl text-foreground/70 font-medium leading-relaxed">
@@ -175,12 +163,12 @@ export default function HomeClient({ packages }: { packages: Package[] }) {
               </p>
               <div className="pt-4 flex gap-8 border-t border-border mt-8">
                 <div>
-                  <h4 className="text-4xl font-black text-brand-brown">150+</h4>
-                  <p className="text-brand-brown/60 font-bold text-sm mt-1">مشروع منجز</p>
+                  <h4 className="text-4xl font-black text-foreground">150+</h4>
+                  <p className="font-bold text-sm mt-1 text-foreground/70">مشروع منجز</p>
                 </div>
                 <div>
-                  <h4 className="text-4xl font-black text-brand-brown">Elite</h4>
-                  <p className="text-brand-brown/60 font-bold text-sm mt-1">جودة عالمية</p>
+                  <h4 className="text-4xl font-black text-foreground">Elite</h4>
+                  <p className="font-bold text-sm mt-1 text-foreground/70">جودة عالمية</p>
                 </div>
               </div>
             </motion.div>
@@ -193,8 +181,8 @@ export default function HomeClient({ packages }: { packages: Package[] }) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-6">
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-10% 0px' }}>
-              <motion.h2 variants={fadeUpObj} custom={0} className="text-4xl md:text-6xl font-black text-brand-brown">باقات حصرية</motion.h2>
-              <motion.p variants={fadeUpObj} custom={1} className="text-brand-brown/60 mt-4 text-xl font-medium max-w-xl">
+              <motion.h2 variants={fadeUpObj} custom={0} className="text-4xl md:text-6xl font-black text-foreground">باقات حصرية</motion.h2>
+              <motion.p variants={fadeUpObj} custom={1} className="mt-4 text-xl font-medium max-w-xl text-foreground/70">
                 استثمر في التفوق مع باقاتنا المصممة لتلبية تطلعات المشاريع النخبوية.
               </motion.p>
             </motion.div>
@@ -231,16 +219,16 @@ export default function HomeClient({ packages }: { packages: Package[] }) {
                 </div>
                 
                 <div className="px-5 pb-5 relative z-10 flex flex-col h-full">
-                  <h3 className="text-2xl font-black mb-3 text-brand-brown group-hover:text-brand-gold transition-colors">{pkg.title}</h3>
-                  <p className="text-brand-brown/70 mb-8 font-medium leading-relaxed">{pkg.shortDescription}</p>
+                  <h3 className="text-2xl font-black mb-3 group-hover:text-brand-gold transition-colors text-foreground">{pkg.title}</h3>
+                  <p className="mb-8 font-medium leading-relaxed text-foreground/70">{pkg.shortDescription}</p>
                   
                   <div className="mt-auto">
                     <Link
                       href={`/packages/${pkg.id}`}
-                      className="flex items-center justify-between w-full p-4 rounded-2xl bg-background border border-border group-hover:bg-brand-brown group-hover:border-brand-brown transition-all duration-300"
+                      className="flex items-center justify-between w-full p-4 rounded-2xl border border-border transition-all duration-300 bg-border/20 hover:bg-brand-brown hover:border-brand-brown group"
                     >
-                      <span className="font-bold text-brand-brown group-hover:text-brand-beige">التفاصيل الكاملة</span>
-                      <ArrowUpLeft className="text-brand-brown group-hover:text-brand-beige group-hover:-translate-y-1 group-hover:-translate-x-1 transition-transform" />
+                      <span className="font-bold text-foreground group-hover:text-brand-beige">التفاصيل الكاملة</span>
+                      <ArrowUpLeft className="text-brand-gold group-hover:text-brand-beige group-hover:-translate-y-1 group-hover:-translate-x-1 transition-transform" />
                     </Link>
                   </div>
                 </div>
@@ -272,21 +260,22 @@ export default function HomeClient({ packages }: { packages: Package[] }) {
                 className="bg-surface/80 glass rounded-[3rem] p-10 md:p-16 border border-white/20 shadow-2xl relative"
               >
                 <div className="flex flex-col md:flex-row gap-10 items-center md:items-start text-center md:text-right">
-                  <div className="flex-shrink-0 w-24 h-24 rounded-full bg-brand-brown text-brand-gold flex items-center justify-center font-black text-3xl shadow-inner border-4 border-brand-beige">
-                    {DUMMY_REVIEWS[activeReview].author.charAt(0)}
+                  <div className="flex-shrink-0 w-24 h-24 rounded-full flex items-center justify-center font-black text-3xl shadow-inner border-4 border-border bg-surface text-brand-gold">
+                    {activeReviews[activeReview]?.author?.charAt(0) || 'U'}
                   </div>
                   
                   <div className="flex-1">
                     <div className="flex gap-1 mb-6 justify-center md:justify-start" style={{ color: '#D4AF37' }}>
                       {[...Array(5)].map((_, i) => <Star key={i} size={20} fill="currentColor" />)}
                     </div>
-                    <p className="text-2xl md:text-3xl font-medium leading-relaxed text-brand-brown mb-8 text-balance">
-                      &quot;{DUMMY_REVIEWS[activeReview].content}&quot;
+                    <p className="text-2xl md:text-3xl font-medium leading-relaxed mb-8 text-balance text-foreground">
+                      &quot;{activeReviews[activeReview]?.content}&quot;
                     </p>
                     <div>
-                      <p className="font-black text-xl text-brand-brown">{DUMMY_REVIEWS[activeReview].author}</p>
+                      <p className="font-black text-xl text-foreground">{activeReviews[activeReview]?.author}</p>
                       <p className="text-sm font-bold text-brand-gold tracking-wide uppercase mt-1">
-                        {DUMMY_REVIEWS[activeReview].packageTitle}
+                        {/* @ts-ignore */}
+                        {activeReviews[activeReview]?.packageTitle || 'مراجعة عميل'}
                       </p>
                     </div>
                   </div>
@@ -296,7 +285,7 @@ export default function HomeClient({ packages }: { packages: Package[] }) {
 
             {/* Navigation Pips */}
             <div className="flex justify-center gap-3 mt-12">
-              {DUMMY_REVIEWS.map((_, i) => (
+              {activeReviews.map((_, i) => (
                 <button
                   key={i}
                   onClick={() => setActiveReview(i)}
@@ -311,16 +300,19 @@ export default function HomeClient({ packages }: { packages: Package[] }) {
       </section>
 
       {/* ─── Mega Footer CTA ─── */}
-      <section className="py-32 bg-brand-brown text-center relative overflow-hidden">
-        {/* Floating elements inside CTA */}
+      <section className="py-32 text-center relative overflow-hidden" style={{ background: '#1A0A05' }}>
+        {/* Subtle texture */}
         <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-10 pointer-events-none" />
+        {/* Glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[50vw] h-[50vw] rounded-full blur-[120px] pointer-events-none" style={{ background: 'rgba(163,29,36,0.18)' }} />
         <motion.div initial={{ scale: 0.8, opacity: 0 }} whileInView={{ scale: 1, opacity: 1 }} viewport={{ once: true, amount: 0.3 }} transition={{ duration: 1 }} className="relative z-10 max-w-3xl mx-auto px-4">
-          <h2 className="text-5xl md:text-7xl font-black text-brand-beige mb-6">هل أنت مستعد <br/>للتميز المطلق؟</h2>
-          <p className="text-xl text-brand-nude/70 mb-12 font-medium">ابدأ رحلتك الرقمية معنا واجعل مشروعك القادم تحفة فنية تلفت الأنظار.</p>
+          <h2 className="text-5xl md:text-7xl font-black mb-6" style={{ color: '#F5EFE6' }}>هل أنت مستعد <br/>للتميز المطلق؟</h2>
+          <p className="text-xl mb-12 font-medium" style={{ color: 'rgba(245,239,230,0.65)' }}>ابدأ رحلتك الرقمية معنا واجعل مشروعك القادم تحفة فنية تلفت الأنظار.</p>
           <MagneticButton>
             <Link
               href="/packages"
-              className="inline-block px-12 py-5 bg-brand-gold text-brand-brown font-black text-xl rounded-full shadow-[0_0_40px_rgba(212,175,55,0.4)] hover:shadow-[0_0_80px_rgba(212,175,55,0.6)] transition-all ease-out duration-500"
+              className="inline-block px-12 py-5 font-black text-xl rounded-full transition-all ease-out duration-500 hover:scale-105"
+              style={{ background: '#D4AF37', color: '#1A0A05', boxShadow: '0 0 40px rgba(212,175,55,0.4)' }}
             >
               دعنا نصنع المستحيل معاً
             </Link>

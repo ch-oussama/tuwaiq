@@ -13,13 +13,15 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
       title: `${project.title} | TuwaiqStudio`,
       description: project.description,
       openGraph: {
-        title: `${project.title} | TuwaiqStudio`,
+        siteName: 'TuwaiqStudio',
+        title: project.title,
         description: project.description,
-        images: [project.imageUrl],
+        images: [{ url: project.imageUrl, width: 1200, height: 630 }],
+        type: 'website',
       },
       twitter: {
         card: "summary_large_image",
-        title: `${project.title} | TuwaiqStudio`,
+        title: project.title,
         description: project.description,
         images: [project.imageUrl],
       }

@@ -8,6 +8,8 @@ import CustomCursor from "@/components/CustomCursor";
 import LenisProvider from "@/components/LenisProvider";
 import AbstractScene from "@/components/AbstractScene";
 import { AuthProvider } from "@/lib/AuthContext";
+import { BranchProvider } from "@/lib/BranchContext";
+import ClientAppWrapper from "@/components/ClientAppWrapper";
 import "./globals.css";
 
 const tajawal = Tajawal({
@@ -33,33 +35,25 @@ export default function RootLayout({
     <html
       lang="ar"
       dir="rtl"
-      className={`${tajawal.variable} antialiased`}
+      className={`${tajawal.variable} antialiased dark`}
+      suppressHydrationWarning
     >
-      <body className="font-sans" style={{ background: '#D9CAB6', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-        <LenisProvider>
-          <AuthProvider>
-            <CustomCursor />
-            <div 
-              className="fixed inset-0 pointer-events-none z-0 opacity-[0.07]" 
-              style={{ 
-                backgroundImage: 'url(/image.png)', 
-                backgroundSize: 'cover', 
-                backgroundPosition: 'center', 
-                backgroundAttachment: 'fixed',
-                backgroundRepeat: 'no-repeat'
-              }} 
-            />
-            <AbstractScene />
-            <Navbar />
-            {/* Filmstrip camera scroll animation — fixed overlay */}
-            <FilmstripCamera />
-            <main className="flex-grow pt-20 relative z-10">
-              {children}
-            </main>
-            <Footer />
-            <GeminiWidget />
-          </AuthProvider>
-        </LenisProvider>
+      <body className="flex flex-col min-h-screen text-foreground bg-transparent font-sans">
+          <LenisProvider>
+            <AuthProvider>
+              <BranchProvider>
+                <CustomCursor />
+                <ClientAppWrapper>
+                  <Navbar />
+                  <main className="flex-grow pt-20 relative z-10">
+                    {children}
+                  </main>
+                  <Footer />
+                </ClientAppWrapper>
+                <GeminiWidget />
+              </BranchProvider>
+            </AuthProvider>
+          </LenisProvider>
       </body>
     </html>
   );

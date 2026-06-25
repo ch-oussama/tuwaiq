@@ -56,7 +56,7 @@ export default function SinglePackageClient({ pkg }: { pkg: Package }) {
             </div>
 
             <a 
-              href="https://discord.gg/example" 
+              href="https://discord.gg/twq2" 
               target="_blank" 
               rel="noopener noreferrer"
               className="w-full py-4 bg-brand-brown text-brand-beige dark:bg-brand-beige dark:text-brand-brown rounded-xl font-black text-xl flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform shadow-xl"

@@ -43,6 +43,7 @@ export default function AdminDashboard({ initialPackages, initialProjects }: { i
       shortDescription: formData.get('shortDescription'),
       description: formData.get('description'),
       price: Number(formData.get('price')),
+      branch: formData.get('branch'),
       thumbnailUrl: formData.get('thumbnailUrl'),
       images: (formData.get('images') as string).split(',').map(s => s.trim()).filter(s => s),
       features: (formData.get('features') as string).split('\n').map(s => s.trim()).filter(s => s),
@@ -132,6 +133,7 @@ export default function AdminDashboard({ initialPackages, initialProjects }: { i
       const body = {
         title: formData.get('title'),
         category: formData.get('category'),
+        branch: formData.get('branch'),
         description: formData.get('description'),
         imageUrl: imageUrls[0] || '',
         images: imageUrls,
@@ -271,6 +273,13 @@ export default function AdminDashboard({ initialPackages, initialProjects }: { i
                   </div>
                 ))}
                 <div>
+                  <label className="block text-xs font-black mb-1 text-foreground/70 uppercase tracking-wide">الفرع (Branch)</label>
+                  <select name="branch" required className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-gold transition-colors">
+                    <option value="studio">أستوديو طويق (Studio)</option>
+                    <option value="design">طويق للتصميم (Design)</option>
+                  </select>
+                </div>
+                <div>
                   <label className="block text-xs font-black mb-1 text-foreground/70 uppercase tracking-wide">الوصف الكامل</label>
                   <textarea name="description" required rows={3} className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-gold transition-colors resize-none" />
                 </div>
@@ -311,7 +320,10 @@ export default function AdminDashboard({ initialPackages, initialProjects }: { i
                       <img src={pkg.thumbnailUrl} alt="" className="w-16 h-16 rounded-xl object-cover border border-border" />
                       <div>
                         <h3 className="font-black text-base text-brand-brown dark:text-brand-nude">{pkg.title}</h3>
-                        <p className="text-sm text-foreground/60 font-medium">{pkg.price}$</p>
+                        <p className="text-sm text-foreground/60 font-medium flex items-center gap-2">
+                          {pkg.price}$ 
+                          <span className="bg-brand-gold/20 text-brand-gold px-2 py-0.5 rounded text-xs font-bold">{pkg.branch === 'design' ? 'Design' : 'Studio'}</span>
+                        </p>
                         <p className="text-xs text-foreground/40 mt-0.5">{pkg.reviews?.length || 0} تقييم</p>
                       </div>
                     </div>
@@ -456,6 +468,13 @@ export default function AdminDashboard({ initialPackages, initialProjects }: { i
                   </select>
                 </div>
                 <div>
+                  <label className="block text-xs font-black mb-1 text-foreground/70 uppercase tracking-wide">الفرع (Branch)</label>
+                  <select name="branch" required className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-gold transition-colors">
+                    <option value="studio">أستوديو طويق (Studio)</option>
+                    <option value="design">طويق للتصميم (Design)</option>
+                  </select>
+                </div>
+                <div>
                   <label className="block text-xs font-black mb-1 text-foreground/70 uppercase tracking-wide">الوصف</label>
                   <textarea name="description" required rows={3} className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-gold transition-colors resize-none" />
                 </div>
@@ -495,7 +514,10 @@ export default function AdminDashboard({ initialPackages, initialProjects }: { i
                     <img src={proj.imageUrl} alt={proj.title} className="w-20 h-20 rounded-xl object-cover" />
                     <div className="flex-1">
                       <p className="font-black text-brand-brown dark:text-brand-nude text-xl">{proj.title}</p>
-                      <p className="text-sm font-bold text-brand-gold mb-2">{proj.category}</p>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-sm font-bold text-brand-gold">{proj.category}</span>
+                        <span className="bg-brand-gold/20 text-brand-gold px-2 py-0.5 rounded text-xs font-bold">{proj.branch === 'design' ? 'Design' : 'Studio'}</span>
+                      </div>
                     </div>
                     <button
                       onClick={() => handleDeleteProject(proj.id)}

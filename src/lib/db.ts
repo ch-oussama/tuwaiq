@@ -18,6 +18,7 @@ export interface Package {
   images: string[];
   features: string[];
   reviews: Review[];
+  branch?: 'studio' | 'design';
 }
 
 export interface Project {
@@ -28,6 +29,7 @@ export interface Project {
   imageUrl: string;
   images?: string[];
   tags: string[];
+  branch?: 'studio' | 'design';
 }
 
 const packagesCollection = collection(db, 'packages');

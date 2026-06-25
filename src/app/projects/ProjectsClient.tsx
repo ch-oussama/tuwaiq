@@ -5,18 +5,22 @@ import Link from 'next/link';
 import { ExternalLink } from 'lucide-react';
 import { useState } from 'react';
 import type { Project } from '@/lib/db';
+import { useBranch } from '@/lib/BranchContext';
 
 const categories = ['الكل', 'برمجة', 'تصميم جرافيك', '3D design', 'لوقو'];
 
 export default function ProjectsClient({ projects }: { projects: Project[] }) {
   const [activeCategory, setActiveCategory] = useState('الكل');
+  const { branch } = useBranch();
+
+  const branchProjects = projects.filter(p => !p.branch || p.branch === branch);
 
   const filteredProjects = activeCategory === 'الكل'
-    ? projects
-    : projects.filter(p => p.category === activeCategory);
+    ? branchProjects
+    : branchProjects.filter(p => p.category === activeCategory);
 
   return (
-    <div className="min-h-screen bg-background py-24">
+    <div className="min-h-screen bg-transparent py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Header */}
         <motion.div

@@ -3,10 +3,14 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { Package } from '@/lib/db';
+import { useBranch } from '@/lib/BranchContext';
 
 export default function PackagesClient({ packages }: { packages: Package[] }) {
+  const { branch } = useBranch();
+  const displayPackages = packages.filter(p => !p.branch || p.branch === branch);
+
   return (
-    <div className="py-24 bg-background min-h-screen">
+    <div className="py-24 bg-transparent min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -18,7 +22,7 @@ export default function PackagesClient({ packages }: { packages: Package[] }) {
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {packages.map((pkg, i) => (
+          {displayPackages.map((pkg, i) => (
             <motion.div 
               key={pkg.id}
               initial={{ opacity: 0, y: 30 }}
