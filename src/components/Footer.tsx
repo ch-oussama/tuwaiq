@@ -17,36 +17,36 @@ export default async function Footer() {
   const packages = await getFooterPackages();
   
   return (
-    <footer style={{ background: '#F0E9DF', borderTop: '1px solid #C8B9B1', marginTop: 80, paddingTop: 48, paddingBottom: 48 }}>
+    <footer className="bg-brand-brown dark:bg-black mt-20 py-12 border-t border-brand-brown-light dark:border-white/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           <div>
             <Link href="/" className="flex items-center gap-2 mb-4">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo.png" alt="" className="h-9 w-9 object-contain" />
-              <span className="text-xl font-black" style={{ color: '#3E2723' }}>
-                Tuwaiq<span style={{ color: '#D4AF37' }}>Studio</span>
+              <img src="/logo.png" alt="Tuwaiq Studio Logo" className="h-9 w-9 object-contain brightness-0 invert" />
+              <span className="text-xl font-black text-[#E6DFD5]">
+                Tuwaiq<span className="text-brand-gold">Studio</span>
               </span>
             </Link>
-            <p className="text-sm font-medium" style={{ color: 'rgba(44,24,16,0.65)' }}>
+            <p className="text-sm font-medium text-[#E6DFD5]/70">
               نقدم لك خدمات رقمية متكاملة بأسلوب استثنائي لتلبية طموحاتك وتحقيق نجاحك في العالم الرقمي.
             </p>
           </div>
           <div>
-            <h4 className="text-base font-black mb-4" style={{ color: '#3E2723' }}>روابط سريعة</h4>
+            <h4 className="text-base font-black mb-4 text-[#E6DFD5]">روابط سريعة</h4>
             <ul className="space-y-2.5">
-              <li><Link href="/#about" scroll={true} className="text-sm font-medium hover:text-brand-gold transition-colors" style={{ color: 'rgba(44,24,16,0.7)' }}>من نحن</Link></li>
-              <li><Link href="/packages" className="text-sm font-medium hover:text-brand-gold transition-colors" style={{ color: 'rgba(44,24,16,0.7)' }}>الباقات</Link></li>
-              <li><Link href="/projects" className="text-sm font-medium hover:text-brand-gold transition-colors" style={{ color: 'rgba(44,24,16,0.7)' }}>مشاريعنا</Link></li>
-              <li><Link href="/#reviews" scroll={true} className="text-sm font-medium hover:text-brand-gold transition-colors" style={{ color: 'rgba(44,24,16,0.7)' }}>آراء العملاء</Link></li>
+              <li><Link href="/#about" scroll={true} className="text-sm font-medium text-[#E6DFD5]/80 hover:text-brand-gold transition-colors">من نحن</Link></li>
+              <li><Link href="/packages" className="text-sm font-medium text-[#E6DFD5]/80 hover:text-brand-gold transition-colors">الباقات</Link></li>
+              <li><Link href="/projects" className="text-sm font-medium text-[#E6DFD5]/80 hover:text-brand-gold transition-colors">مشاريعنا</Link></li>
+              <li><Link href="/#reviews" scroll={true} className="text-sm font-medium text-[#E6DFD5]/80 hover:text-brand-gold transition-colors">آراء العملاء</Link></li>
             </ul>
           </div>
           <div>
-            <h4 className="text-base font-black mb-4" style={{ color: '#3E2723' }}>خدماتنا</h4>
+            <h4 className="text-base font-black mb-4 text-[#E6DFD5]">خدماتنا</h4>
             <ul className="space-y-2.5">
               {packages.slice(0, 3).map((pkg) => (
                 <li key={pkg.id}>
-                  <Link href={`/packages/${pkg.id}`} className="text-sm font-medium hover:text-brand-gold transition-colors" style={{ color: 'rgba(44,24,16,0.7)' }}>
+                  <Link href={`/packages/${pkg.id}`} className="text-sm font-medium text-[#E6DFD5]/80 hover:text-brand-gold transition-colors">
                     {pkg.title}
                   </Link>
                 </li>
@@ -55,8 +55,8 @@ export default async function Footer() {
           </div>
         </div>
         {/* Social Accounts Section */}
-        <div className="mt-10 border-t pt-8" style={{ borderColor: '#C8B9B1' }}>
-          <h4 className="text-center text-base font-black mb-5" style={{ color: '#3E2723' }}>حساباتنا</h4>
+        <div className="mt-10 border-t border-[#E6DFD5]/10 pt-8">
+          <h4 className="text-center text-base font-black mb-5 text-[#E6DFD5]">حساباتنا</h4>
           <div className="flex flex-wrap justify-center gap-4">
 
             {/* Discord - بنفسجي زاهي */}
@@ -103,7 +103,7 @@ export default async function Footer() {
 
           </div>
         </div>
-        <div className="mt-12 pt-6 text-center text-xs font-medium" style={{ borderTop: '1px solid #C8B9B1', color: 'rgba(44,24,16,0.45)' }}>
+        <div className="mt-12 pt-6 text-center text-xs font-medium text-[#E6DFD5]/50 border-t border-[#E6DFD5]/10">
           © {new Date().getFullYear()} Tuwaiq Studio. جميع الحقوق محفوظة.
         </div>
       </div>
