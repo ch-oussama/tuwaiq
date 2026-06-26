@@ -147,7 +147,13 @@ export default function HomeClient({ packages }: { packages: Package[] }) {
             >
               <div className="aspect-square w-full max-w-md rounded-full bg-border/50 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 blur-3xl" />
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo.png" alt="Tuwaiq Studio" className="w-3/4 mx-auto relative z-10 drop-shadow-[0_20px_50px_rgba(212,175,55,0.3)] animate-pulse-slow" />
+              <img 
+                src={branch === 'design' ? "/logo design.webp" : "/logo studio.webp"}
+                alt={branch === 'design' ? "Tuwaiq Design" : "Tuwaiq Studio"}
+                className={`w-3/4 mx-auto relative z-10 drop-shadow-[0_20px_50px_rgba(212,175,55,0.3)] animate-pulse-slow ${
+                  branch === 'design' ? 'rounded-full' : ''
+                }`}
+              />
             </motion.div>
             
             <motion.div 
@@ -156,10 +162,17 @@ export default function HomeClient({ packages }: { packages: Package[] }) {
             >
               <h2 className="text-sm font-black text-brand-gold tracking-[0.2em] uppercase">رؤيتنا</h2>
               <h3 className="text-4xl md:text-5xl font-black leading-tight text-foreground">
-                لسنا مجرد مبرمجين، نحن <span className="italic text-brand-gold">مهندسو أحلامك الرقمية.</span>
+                {branch === 'design' ? (
+                  <>لسنا مجرد مصممين، نحن <span className="italic text-brand-gold">صُنّاع الهويات الخالدة.</span></>
+                ) : (
+                  <>لسنا مجرد مبرمجين، نحن <span className="italic text-brand-gold">مهندسو أحلامك الرقمية.</span></>
+                )}
               </h3>
               <p className="text-xl text-foreground/70 font-medium leading-relaxed">
-                في أستوديو طويق، نؤمن أن التصميم العظيم لا يُرى فقط، بل يُشعر به. ندمج بين الجماليات الفاخرة والقوة البرمجية لتقديم منصات تسطر قصة نجاحك وتعكس قيمتك الحقيقية في السوق.
+                {branch === 'design' 
+                  ? "في طويق ديزاين، نؤمن أن كل علامة تجارية تحمل روحاً تنتظر أن تُعبَّر عنها. نصمم هويات بصرية فاخرة وشعارات راسخة تجعلك لا تُنسى في أذهان جمهورك."
+                  : "في أستوديو طويق، نؤمن أن التصميم العظيم لا يُرى فقط، بل يُشعر به. ندمج بين الجماليات الفاخرة والقوة البرمجية لتقديم منصات تسطر قصة نجاحك وتعكس قيمتك الحقيقية في السوق."
+                }
               </p>
               <div className="pt-4 flex gap-8 border-t border-border mt-8">
                 <div>

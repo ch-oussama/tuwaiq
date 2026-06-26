@@ -1,6 +1,6 @@
 import { getPackages } from '@/lib/db';
 import { DUMMY_PACKAGES } from '@/lib/dummyData';
-import HomeClient from './HomeClient';
+import HomeSwitcherClient from './HomeSwitcherClient';
 
 export default async function Home() {
   let packages = DUMMY_PACKAGES;
@@ -8,5 +8,5 @@ export default async function Home() {
     const fetched = await getPackages();
     if (fetched.length > 0) packages = fetched;
   } catch {}
-  return <HomeClient packages={packages} />;
+  return <HomeSwitcherClient packages={packages} />;
 }
