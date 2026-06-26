@@ -86,7 +86,7 @@ export default function GeminiWidget() {
                   <Bot size={20} />
                 </div>
                 <div>
-                  <h3 className="font-bold text-sm">مستشار دقة الذكي</h3>
+                  <h3 className="font-bold text-sm">مستشار طويق الذكي</h3>
                   <p className="text-xs opacity-80">أستوديو طويق</p>
                 </div>
               </div>

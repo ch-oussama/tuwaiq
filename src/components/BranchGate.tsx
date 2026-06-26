@@ -152,18 +152,10 @@ export default function BranchGate({ children }: { children: React.ReactNode }) 
         <ChevronRight size={16} className="text-[#b39b60]/70" />
       </div>
 
-      {/* Bottom Footer (Desktop Absolute) -> Mobile handled natively at bottom */}
-      <div className="hidden md:flex absolute bottom-0 w-full h-14 bg-[#0A0A0A] border-t border-[#D4AF37]/20 z-[120] items-center justify-between px-6 md:px-12 text-[#8c8c8c] text-xs font-medium backdrop-blur-xl">
-        <div /> {/* Spacer */}
-        {/* Center Logo */}
-        <div className="absolute left-1/2 -translate-x-1/2 hidden md:block">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo design.webp" className="w-8 h-8 opacity-40 grayscale sepia rounded-full" alt="Tuwaiq" />
-        </div>
-
-        {/* Text */}
-        <div className="tracking-wide hidden sm:block ms-auto">
-          طويق.. حيث تتحول الأفكار إلى هوية، والمحتوى إلى تجربة خالدة.
+      {/* Bottom Footer Quote */}
+      <div className="hidden md:flex absolute bottom-0 w-full h-20 bg-transparent z-[120] items-center justify-center pointer-events-none">
+        <div className="tracking-widest text-[#b39b60] text-[13px] font-black drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] opacity-90">
+         
         </div>
       </div>
 

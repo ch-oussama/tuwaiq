@@ -82,15 +82,15 @@ export default function DesignHomeClient({ packages }: { packages: Package[] }) 
       </motion.div>
 
       {/* ─── Hero ─── */}
-      <section className="relative z-10 min-h-[95vh] flex flex-col items-center justify-center pt-28 px-6 text-center">
+      <section className="relative z-10 min-h-[95vh] flex flex-col items-center justify-center pt-16 px-6 text-center">
 
         {/* Title Image (Arabic Calligraphy) */}
-        <motion.div custom={0} initial="hidden" animate="visible" variants={fadeUp}>
+        <motion.div custom={0} initial="hidden" animate="visible" variants={fadeUp} className="-mt-8">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/title of design.png"
             alt="طويق ديزاين"
-            className="h-40 md:h-56 object-contain mx-auto mb-2"
+            className="h-52 sm:h-64 md:h-80 object-contain mx-auto mb-0"
           />
         </motion.div>
 
@@ -180,7 +180,7 @@ export default function DesignHomeClient({ packages }: { packages: Package[] }) 
             initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 1, delay: 0.2 }}
             className="flex-1 space-y-6"
           >
-            <h2 className="text-xs font-black text-[#5c1a16] tracking-[0.3em] uppercase">رؤيتنا</h2>
+            <h2 className="text-xs font-black text-[#5c1a16] tracking-[0.3em] uppercase">من نحن</h2>
             <h3 className="text-4xl md:text-5xl font-black text-[#2d1a12] leading-tight">
               لسنا مجرد مصممين، نحن{' '}
               <span className="italic text-[#5c1a16]">صُنّاع الهويات الخالدة.</span>
