@@ -1,12 +1,15 @@
 "use client";
 
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import Link from 'next/link';
 import { Package } from '@/lib/db';
 import { DUMMY_PACKAGES, DUMMY_REVIEWS } from '@/lib/dummyData';
 import { useBranch } from '@/lib/BranchContext';
 import { Star, ArrowLeft, ArrowUpLeft, Layers, Target, Diamond, Infinity as InfinityIcon, Play, Quote } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+
+import TimelineSection from '@/components/TimelineSection';
+import DesignGlobe from '@/components/DesignGlobe';
 
 const fadeUp: any = {
   hidden: { opacity: 0, y: 40 },
@@ -32,6 +35,45 @@ export default function DesignHomeClient({ packages }: { packages: Package[] }) 
   const branchReviews = displayPackages.flatMap(p => p.reviews || []);
   const activeReviews = branchReviews.length > 0 ? branchReviews : DUMMY_REVIEWS;
   const [activeReview, setActiveReview] = useState(0);
+
+  // ─── Sticky Scroll Setup ───
+  const containerRef = useRef<HTMLDivElement>(null);
+  
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end end"]
+  });
+
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // 1. Hero Out
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.25], [1, 0]);
+  const heroY = useTransform(scrollYProgress, [0, 0.25], ["0vh", "-10vh"]);
+  const heroDisplay = useTransform(scrollYProgress, (v) => v > 0.3 ? 'none' : 'flex') as any;
+
+  // 2. Logo Move — stretched range for slower, more cinematic movement
+  const progress40_75 = useTransform(scrollYProgress, [0.2, 0.85], [0, 1]);
+  const logoScale = useTransform(progress40_75, [0, 1], [1, 1.15]);
+  const logoX = useTransform(progress40_75, (v) => isMobile ? '0vw' : `${v * 10}vw`);
+  const logoY = useTransform(progress40_75, (v) => {
+    if (isMobile) return `${-12 - (v * 25)}vh`;
+    return `${v * 20}vh`; // Slow descent to meet About text
+  });
+
+  // 3. About Move — also stretched to sync with slower logo
+  const progress60_90 = useTransform(scrollYProgress, [0.50, 0.9], [0, 1]);
+  const aboutOpacity = useTransform(progress60_90, [0, 1], [0, 1]);
+  const aboutX = useTransform(progress60_90, (v) => isMobile ? '0vw' : '-18vw');
+  const aboutY = useTransform(progress60_90, (v) => {
+    if (isMobile) return `${25 - (v * 15)}vh`;
+    return `${20 - (v * 15)}vh`;
+  });
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -81,111 +123,22 @@ export default function DesignHomeClient({ packages }: { packages: Package[] }) 
         <span className="text-[11px] font-bold tracking-widest text-[#5c1a16] mt-2">اسحب للأسفل</span>
       </motion.div>
 
-      {/* ─── Hero ─── */}
-      <section className="relative z-10 min-h-[95vh] flex flex-col items-center justify-center pt-16 px-6 text-center">
-
-        {/* Title Image (Arabic Calligraphy) */}
-        <motion.div custom={0} initial="hidden" animate="visible" variants={fadeUp} className="-mt-8">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/title of design.png"
-            alt="طويق ديزاين"
-            className="h-52 sm:h-64 md:h-80 object-contain mx-auto mb-0"
-          />
-        </motion.div>
-
-        {/* TUWAIQ DESIGN subtitle */}
-        <motion.p
-          custom={1} initial="hidden" animate="visible" variants={fadeUp}
-          className="text-xs md:text-sm tracking-[0.5em] font-medium text-[#5c1a16]/70 mb-10"
-        >
-          T U W A I Q &nbsp; D E S I G N
-        </motion.p>
-
-        {/* Main Headline */}
-        <motion.h1
-          custom={2} initial="hidden" animate="visible" variants={fadeUp}
-          className="text-4xl md:text-6xl font-black text-[#2d1a12] leading-tight mb-5"
-        >
-          تصميم هويات بصرية
-          <br />
-          <span className="text-[#5c1a16]">وشعارات احترافية</span>
-        </motion.h1>
-
-        {/* Subtext */}
-        <motion.p
-          custom={3} initial="hidden" animate="visible" variants={fadeUp}
-          className="text-lg text-[#4a3530]/80 font-medium mb-12 max-w-md"
-        >
-          نحو هوية تعكس رؤيتك وتبقى في الذاكرة
-        </motion.p>
-
-        {/* CTAs */}
-        <motion.div
-          custom={4} initial="hidden" animate="visible" variants={fadeUp}
-          className="flex flex-wrap items-center justify-center gap-5"
-        >
-          <Link
-            href="/projects"
-            className="flex items-center gap-3 px-8 py-4 rounded-full bg-[#5c1a16] text-[#f5ecd8] font-black text-base shadow-xl hover:bg-[#3D0A0C] transition-all hover:scale-105"
+      {/* ─── Hero + About Scroll Sequence ─── */}
+      <section ref={containerRef} className="relative z-10 w-full" style={{ height: "150vh" }}>
+        <div className="sticky top-0 h-[100svh] w-full overflow-hidden flex items-center justify-center">
+          
+          {/* About Text (Fades in and moves up/left) */}
+          <motion.div 
+            style={{ opacity: aboutOpacity, x: aboutX, y: aboutY }}
+            className="absolute flex flex-col items-center lg:items-start text-center lg:text-right max-w-xl px-6 w-full z-10"
           >
-            استكشف أعمالنا
-            <ArrowLeft size={18} />
-          </Link>
-          <button className="flex items-center gap-3 text-[#5c1a16] font-bold text-base hover:opacity-70 transition-opacity">
-            <div className="w-10 h-10 rounded-full border-2 border-[#5c1a16] flex items-center justify-center">
-              <Play size={14} fill="#5c1a16" />
-            </div>
-            شاهد الفيديو
-          </button>
-        </motion.div>
-
-
-
-        {/* Feature Icons Row */}
-        <motion.div
-          custom={5} initial="hidden" animate="visible" variants={fadeUp}
-          className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-8 w-full max-w-4xl"
-        >
-          {features.map((f, i) => (
-            <div key={i} className="flex flex-col items-center gap-2 text-center group">
-              <div className="w-14 h-14 rounded-2xl bg-[#5c1a16]/10 border border-[#5c1a16]/20 flex items-center justify-center text-[#5c1a16] group-hover:bg-[#5c1a16] group-hover:text-[#f5ecd8] transition-all">
-                {f.icon}
-              </div>
-              <h4 className="font-black text-[#2d1a12] text-sm">{f.title}</h4>
-              <p className="text-xs text-[#4a3530]/60 max-w-[120px] leading-relaxed">{f.desc}</p>
-            </div>
-          ))}
-        </motion.div>
-      </section>
-
-      {/* ─── About Section ─── */}
-      <section id="about" className="relative z-10 py-28 px-6">
-        <div className="max-w-6xl mx-auto flex flex-col lg:flex-row items-center gap-16">
-          {/* Logo */}
-          <motion.div
-            initial={{ opacity: 0, x: 50 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 1 }}
-            className="flex-1 flex justify-center"
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/logo design.webp"
-              alt="Tuwaiq Design"
-              className="w-64 h-64 rounded-full object-contain shadow-[0_20px_60px_rgba(92,26,22,0.2)] border-4 border-[#5c1a16]/20"
-            />
-          </motion.div>
-
-          {/* Text */}
-          <motion.div
-            initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 1, delay: 0.2 }}
-            className="flex-1 space-y-6"
-          >
-            <h2 className="text-xs font-black text-[#5c1a16] tracking-[0.3em] uppercase">من نحن</h2>
-            <h3 className="text-4xl md:text-5xl font-black text-[#2d1a12] leading-tight">
+            <h2 className="text-xs font-black text-[#5c1a16] tracking-[0.3em] uppercase mb-4">من نحن</h2>
+            <h3 className="text-4xl md:text-5xl font-black text-[#2d1a12] leading-tight mb-6">
               لسنا مجرد مصممين، نحن{' '}
+              <br className="hidden md:block"/>
               <span className="italic text-[#5c1a16]">صُنّاع الهويات الخالدة.</span>
             </h3>
-            <p className="text-lg text-[#4a3530]/80 leading-relaxed">
+            <p className="text-lg text-[#4a3530]/80 leading-relaxed mb-8">
               في طويق ديزاين، نؤمن أن كل علامة تجارية تحمل روحاً تنتظر أن تُعبَّر عنها. نصمم هويات بصرية فاخرة وشعارات راسخة تجعلك لا تُنسى في أذهان جمهورك.
             </p>
             <div className="flex gap-10 pt-4 border-t border-[#5c1a16]/20">
@@ -199,11 +152,84 @@ export default function DesignHomeClient({ packages }: { packages: Package[] }) 
               </div>
             </div>
           </motion.div>
+
+          {/* Logo Container (Scales very slightly and strictly moves UP/DOWN based on device) */}
+          <motion.div 
+            style={{ x: logoX, y: logoY, scale: logoScale }}
+            className="absolute top-[12%] md:top-[12%] flex items-center justify-center z-20 pointer-events-none"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/title of design.png"
+              alt="طويق ديزاين"
+              className="h-44 sm:h-56 md:h-[18rem] object-contain relative z-10"
+            />
+          </motion.div>
+
+          {/* Hero Content (Fades out quickly on scroll) */}
+          <motion.div 
+            style={{ opacity: heroOpacity, y: heroY, display: heroDisplay }}
+            className="absolute top-[42%] md:top-[38%] flex flex-col items-center w-full z-30 px-6"
+          >
+            {/* TUWAIQ DESIGN subtitle */}
+            <p className="text-[10px] sm:text-xs md:text-sm tracking-[0.5em] font-medium text-[#5c1a16]/70 mb-6 lg:mb-8">
+              T U W A I Q &nbsp; D E S I G N
+            </p>
+
+            {/* Main Headline */}
+            <h1 className="text-3xl sm:text-4xl md:text-6xl font-black text-[#2d1a12] leading-tight mb-4 lg:mb-5 text-center">
+              تصميم هويات بصرية
+              <br />
+              <span className="text-[#5c1a16]">وشعارات احترافية</span>
+            </h1>
+
+            {/* Subtext */}
+            <p className="text-base lg:text-lg text-[#4a3530]/80 font-medium mb-10 max-w-md text-center">
+              نحو هوية تعكس رؤيتك وتبقى في الذاكرة
+            </p>
+
+            {/* CTAs */}
+            <div className="flex flex-wrap items-center justify-center gap-4 lg:gap-5">
+              <Link
+                href="/projects"
+                className="flex items-center gap-3 px-6 sm:px-8 py-3.5 sm:py-4 rounded-full bg-[#5c1a16] text-[#f5ecd8] font-black text-sm sm:text-base shadow-xl hover:bg-[#3D0A0C] transition-all hover:scale-105"
+              >
+                استكشف أعمالنا
+                <ArrowLeft size={18} />
+              </Link>
+              <button className="flex items-center gap-3 text-[#5c1a16] font-bold text-sm sm:text-base hover:opacity-70 transition-opacity">
+                <div className="w-10 h-10 rounded-full border-2 border-[#5c1a16] flex items-center justify-center">
+                  <Play size={14} fill="#5c1a16" />
+                </div>
+                شاهد الفيديو
+              </button>
+            </div>
+
+            {/* Feature Icons Row */}
+            <div className="mt-14 sm:mt-16 grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 w-full max-w-4xl">
+              {features.map((f, i) => (
+                <div key={i} className="flex flex-col items-center gap-2 text-center group">
+                  <div className="w-12 h-12 rounded-2xl bg-[#5c1a16]/10 border border-[#5c1a16]/20 flex items-center justify-center text-[#5c1a16] transition-all">
+                    {f.icon}
+                  </div>
+                  <h4 className="font-black text-[#2d1a12] text-xs lg:text-sm">{f.title}</h4>
+                  <p className="text-[10px] lg:text-[11px] text-[#4a3530]/60 max-w-[100px] leading-relaxed hidden sm:block">{f.desc}</p>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
         </div>
       </section>
 
+      {/* ─── Glowing Experience Timeline ─── */}
+      <TimelineSection />
+
+      {/* ─── Design Skills Globe ─── */}
+      <DesignGlobe />
+
       {/* ─── Projects Grid ─── */}
-      <section id="projects" className="relative z-10 py-20 px-6">
+      <section id="projects" className="relative z-30 py-20 px-6">
         <div className="max-w-6xl mx-auto">
           <div className="flex justify-between items-end mb-14">
             <div>
