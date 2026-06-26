@@ -81,7 +81,7 @@ export default function Navbar() {
               <img
                 src={branch === 'design' ? "/logo design.webp" : "/logo studio.webp"}
                 alt={branch === 'design' ? "Tuwaiq Design" : "Tuwaiq Studio"}
-                className={`object-contain drop-shadow-lg transition-all duration-300 hover:scale-110 rounded-full`}
+                className={`object-contain drop-shadow-lg transition-all duration-300 hover:scale-110 ${branch === 'design' ? 'rounded-full' : ''}`}
                 style={{ height: isScrolled ? 56 : 72, width: isScrolled ? 56 : 72, filter: 'drop-shadow(0 0 8px var(--brand-gold))' }}
               />
             </Link>
