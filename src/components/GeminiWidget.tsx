@@ -87,7 +87,7 @@ export default function GeminiWidget() {
                 </div>
                 <div>
                   <h3 className="font-bold text-sm">مستشار طويق الذكي</h3>
-                  <p className="text-xs opacity-80">أستوديو طويق</p>
+                  <p className="text-xs opacity-80">طويق</p>
                 </div>
               </div>
               <button onClick={() => setIsOpen(false)} className="hover:opacity-70 transition-opacity">

@@ -3,13 +3,13 @@
 import { useBranch } from "@/lib/BranchContext";
 import HomeClient from "./HomeClient";
 import DesignHomeClient from "./DesignHomeClient";
-import { Package } from "@/lib/db";
+import { Package, Project } from "@/lib/db";
 
-export default function HomeSwitcherClient({ packages }: { packages: Package[] }) {
+export default function HomeSwitcherClient({ packages, projects }: { packages: Package[], projects: Project[] }) {
   const { branch } = useBranch();
 
   if (branch === 'design') {
-    return <DesignHomeClient packages={packages} />;
+    return <DesignHomeClient packages={packages} projects={projects} />;
   }
 
   // Default to studio / HomeClient

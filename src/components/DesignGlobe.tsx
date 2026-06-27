@@ -166,10 +166,13 @@ export default function DesignGlobe() {
             const dx = midX - CX;
             const dy = midY - CY;
             const len = Math.sqrt(dx * dx + dy * dy) || 1;
-            // Bow factor: push outward proportional to arc length
+            // Bow factor: push outward proportional to arc length, but never outside the globe
             const bow = 1.35;
-            const cpx = CX + (dx / len) * (len * bow);
-            const cpy = CY + (dy / len) * (len * bow);
+            const targetDist = len * bow;
+            const maxDist = RADIUS * 0.96;
+            const finalDist = Math.min(targetDist, maxDist);
+            const cpx = CX + (dx / len) * finalDist;
+            const cpy = CY + (dy / len) * finalDist;
 
             ctx.beginPath();
             ctx.moveTo(ax, ay);

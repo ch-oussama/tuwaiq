@@ -2,14 +2,15 @@
 
 import { motion, useScroll, useTransform } from 'framer-motion';
 import Link from 'next/link';
-import { Package } from '@/lib/db';
-import { DUMMY_PACKAGES, DUMMY_REVIEWS } from '@/lib/dummyData';
+import { Package, Project } from '@/lib/db';
+import { DUMMY_PACKAGES, DUMMY_REVIEWS, PROJECTS as DUMMY_PROJECTS } from '@/lib/dummyData';
 import { useBranch } from '@/lib/BranchContext';
 import { Star, ArrowLeft, ArrowUpLeft, Layers, Target, Diamond, Infinity as InfinityIcon, Play, Quote } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 
 import TimelineSection from '@/components/TimelineSection';
 import DesignGlobe from '@/components/DesignGlobe';
+import HorizontalProjects from '@/components/HorizontalProjects';
 
 const fadeUp: any = {
   hidden: { opacity: 0, y: 40 },
@@ -27,14 +28,18 @@ const features = [
   { icon: <Diamond size={26} />,  title: 'قيم تدوم',          desc: 'تصميم هوية تبقى وتصنع فرقا' },
 ];
 
-export default function DesignHomeClient({ packages }: { packages: Package[] }) {
+export default function DesignHomeClient({ packages, projects }: { packages: Package[], projects: Project[] }) {
   const { setBranch } = useBranch();
   const allPackages = packages.length > 0 ? packages : DUMMY_PACKAGES;
   const displayPackages = allPackages.filter(p => !p.branch || p.branch === 'design');
+  
+  // Filter projects for the design branch
+  const designProjects = projects.filter(p => !p.branch || p.branch === 'design');
 
   const branchReviews = displayPackages.flatMap(p => p.reviews || []);
   const activeReviews = branchReviews.length > 0 ? branchReviews : DUMMY_REVIEWS;
   const [activeReview, setActiveReview] = useState(0);
+  const [hoveredSection, setHoveredSection] = useState<'dev' | 'des' | null>(null);
 
   // ─── Sticky Scroll Setup ───
   const containerRef = useRef<HTMLDivElement>(null);
@@ -52,28 +57,78 @@ export default function DesignHomeClient({ packages }: { packages: Package[] }) 
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // 1. Hero Out
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.25], [1, 0]);
-  const heroY = useTransform(scrollYProgress, [0, 0.25], ["0vh", "-10vh"]);
-  const heroDisplay = useTransform(scrollYProgress, (v) => v > 0.3 ? 'none' : 'flex') as any;
+  // 1. Hero Out (0 - 0.12)
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.12], [1, 0]);
+  const heroY = useTransform(scrollYProgress, [0, 0.12], ["0vh", "-10vh"]);
+  const heroDisplay = useTransform(scrollYProgress, (v) => v > 0.14 ? 'none' : 'flex') as any;
 
-  // 2. Logo Move — stretched range for slower, more cinematic movement
-  const progress40_75 = useTransform(scrollYProgress, [0.2, 0.85], [0, 1]);
-  const logoScale = useTransform(progress40_75, [0, 1], [1, 1.15]);
-  const logoX = useTransform(progress40_75, (v) => isMobile ? '0vw' : `${v * 10}vw`);
-  const logoY = useTransform(progress40_75, (v) => {
-    if (isMobile) return `${-12 - (v * 25)}vh`;
-    return `${v * 20}vh`; // Slow descent to meet About text
+  // 2. Logo Transforms
+  const logoX = useTransform(scrollYProgress, (v) => {
+    if (isMobile) return '0px';
+    if (v < 0.12) return '0px';
+    if (v < 0.25) {
+      const t = (v - 0.12) / 0.13;
+      return `${t * 16}vw`; 
+    }
+    if (v < 0.60) return '16vw'; // Hold during About Us
+    if (v < 0.75) {
+      const t = (v - 0.60) / 0.15;
+      return `${16 - t * 16}vw`; // Smooth return to center for services
+    }
+    return '0px';
   });
 
-  // 3. About Move — also stretched to sync with slower logo
-  const progress60_90 = useTransform(scrollYProgress, [0.50, 0.9], [0, 1]);
-  const aboutOpacity = useTransform(progress60_90, [0, 1], [0, 1]);
-  const aboutX = useTransform(progress60_90, (v) => isMobile ? '0vw' : '-18vw');
-  const aboutY = useTransform(progress60_90, (v) => {
-    if (isMobile) return `${25 - (v * 15)}vh`;
-    return `${20 - (v * 15)}vh`;
+  const logoY = useTransform(scrollYProgress, (v) => {
+    if (isMobile) return '0px';
+    if (v < 0.12) return '-22vh'; 
+    if (v < 0.25) {
+      const t = (v - 0.12) / 0.13;
+      return `${-22 + t * 22}vh`; 
+    }
+    if (v < 0.60) return '0vh'; 
+    if (v < 0.75) {
+      const t = (v - 0.60) / 0.15;
+      return `${-t * 5}vh`; 
+    }
+    return '-5vh'; 
   });
+
+  const logoScale = useTransform(scrollYProgress, [0, 0.60, 0.75], [1, 1, 1.8]); 
+  const logoFilter = useTransform(scrollYProgress, [0.70, 0.85], ["drop-shadow(0px 0px 0px rgba(92,26,22,0))", "drop-shadow(0px 20px 40px rgba(92,26,22,0.3))"]);
+
+  // 3. About Text
+  const aboutOpacity = useTransform(scrollYProgress, [0.15, 0.25, 0.60, 0.70], [0, 1, 1, 0]);
+  const aboutX = useTransform(scrollYProgress, [0.15, 0.25, 0.60, 0.70], ['-3vw', '0vw', '0vw', '-5vw']);
+  const aboutY = useTransform(scrollYProgress, [0.15, 0.25], ['5vh', '0vh']);
+
+  // 4. Services Text Reveal
+  const servicesReveal = useTransform(scrollYProgress, [0.72, 0.85], [0, 1]);
+  const servicesOpacity = useTransform(servicesReveal, [0, 1], [0, 1]);
+  const servicesTracking = useTransform(servicesReveal, [0, 1], ["0.5em", "0em"]);
+  const servicesScale = useTransform(servicesReveal, [0, 1], [0.95, 1]);
+
+  // 5. Tech Box Reveal
+  const boxY = useTransform(scrollYProgress, [0.72, 0.85], ["50vh", "0vh"]);
+  const boxOpacity = useTransform(scrollYProgress, [0.72, 0.85], [0, 1]);
+  const boxGlow = useTransform(scrollYProgress, [0.85, 0.95], ["0px 0px 0px rgba(92,26,22,0)", "0px 0px 30px rgba(92,26,22,0.15)"]);
+  
+  // 6. Box Inner Components Reveal
+  const developOpacity = useTransform(scrollYProgress, [0.78, 0.88], [0, 1]);
+  const developY = useTransform(scrollYProgress, [0.78, 0.88], [20, 0]);
+  
+  const designOpacity = useTransform(scrollYProgress, [0.82, 0.92], [0, 1]);
+  const designY = useTransform(scrollYProgress, [0.82, 0.92], [20, 0]);
+
+  // 7. Fade out box when timeline enters view
+  const servicesEndRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress: endSectionProgress } = useScroll({
+    target: servicesEndRef,
+    offset: ["start 100vh", "start 60vh"]  // faster fade-out
+  });
+  const boxFinalOpacity = useTransform(
+    [boxOpacity, endSectionProgress] as const,
+    ([bOp, eP]: number[]) => (bOp as number) * Math.max(0, 1 - (eP as number))
+  );
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -123,22 +178,24 @@ export default function DesignHomeClient({ packages }: { packages: Package[] }) 
         <span className="text-[11px] font-bold tracking-widest text-[#5c1a16] mt-2">اسحب للأسفل</span>
       </motion.div>
 
-      {/* ─── Hero + About Scroll Sequence ─── */}
-      <section ref={containerRef} className="relative z-10 w-full" style={{ height: "150vh" }}>
+      {/* ─── Hero + About + Services Cinematic Scroll Sequence ─── */}
+      <section ref={containerRef} className="relative z-10 w-full" style={{ height: "300vh" }}>
         <div className="sticky top-0 h-[100svh] w-full overflow-hidden flex items-center justify-center">
           
-          {/* About Text (Fades in and moves up/left) */}
+          {/* About Text (Fades in and stays WIDE horizontally) */}
           <motion.div 
             style={{ opacity: aboutOpacity, x: aboutX, y: aboutY }}
-            className="absolute flex flex-col items-center lg:items-start text-center lg:text-right max-w-xl px-6 w-full z-10"
+            className="absolute left-[8%] lg:left-[15%] top-1/2 -translate-y-1/2 flex flex-col items-center lg:items-start text-center lg:text-right max-w-[95vw] lg:max-w-4xl px-6 z-10"
           >
-            <h2 className="text-xs font-black text-[#5c1a16] tracking-[0.3em] uppercase mb-4">من نحن</h2>
-            <h3 className="text-4xl md:text-5xl font-black text-[#2d1a12] leading-tight mb-6">
-              لسنا مجرد مصممين، نحن{' '}
+            <h2 className="text-xs font-black text-[#5c1a16] tracking-[0.3em] uppercase mb-4 w-full">من نحن</h2>
+            <h3 className="text-4xl md:text-5xl lg:text-[54px] font-black text-[#2d1a12] leading-[1.3] mb-6 lg:whitespace-nowrap">
+              لسنا مجرد مصممين،
+              <br className="hidden md:block"/>
+              نحن
               <br className="hidden md:block"/>
               <span className="italic text-[#5c1a16]">صُنّاع الهويات الخالدة.</span>
             </h3>
-            <p className="text-lg text-[#4a3530]/80 leading-relaxed mb-8">
+            <p className="text-lg text-[#4a3530]/80 leading-relaxed mb-8 max-w-2xl">
               في طويق ديزاين، نؤمن أن كل علامة تجارية تحمل روحاً تنتظر أن تُعبَّر عنها. نصمم هويات بصرية فاخرة وشعارات راسخة تجعلك لا تُنسى في أذهان جمهورك.
             </p>
             <div className="flex gap-10 pt-4 border-t border-[#5c1a16]/20">
@@ -153,23 +210,23 @@ export default function DesignHomeClient({ packages }: { packages: Package[] }) 
             </div>
           </motion.div>
 
-          {/* Logo Container (Scales very slightly and strictly moves UP/DOWN based on device) */}
+          {/* Logo Container - at absolute center, shifted by transforms */}
           <motion.div 
-            style={{ x: logoX, y: logoY, scale: logoScale }}
-            className="absolute top-[12%] md:top-[12%] flex items-center justify-center z-20 pointer-events-none"
+            style={{ x: logoX, y: logoY, scale: logoScale, filter: logoFilter }}
+            className="absolute top-1/2 -translate-y-1/2 flex items-center justify-center z-20 pointer-events-none"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/title of design.png"
               alt="طويق ديزاين"
-              className="h-44 sm:h-56 md:h-[18rem] object-contain relative z-10"
+              className="h-56 sm:h-64 md:h-[18rem] lg:h-[24rem] object-contain relative z-10"
             />
           </motion.div>
 
           {/* Hero Content (Fades out quickly on scroll) */}
           <motion.div 
             style={{ opacity: heroOpacity, y: heroY, display: heroDisplay }}
-            className="absolute top-[42%] md:top-[38%] flex flex-col items-center w-full z-30 px-6"
+            className="absolute top-[45%] md:top-[42%] flex flex-col items-center w-full z-30 px-6"
           >
             {/* TUWAIQ DESIGN subtitle */}
             <p className="text-[10px] sm:text-xs md:text-sm tracking-[0.5em] font-medium text-[#5c1a16]/70 mb-6 lg:mb-8">
@@ -219,57 +276,107 @@ export default function DesignHomeClient({ packages }: { packages: Package[] }) 
             </div>
           </motion.div>
 
+          {/* ─── New Services Section (Left Text & Right Box) ─── */}
+          
+          {/* Left Text: "خدماتنا" */}
+          <motion.div
+            style={{ opacity: servicesOpacity, letterSpacing: servicesTracking, scale: servicesScale }}
+            className="absolute left-[5%] lg:left-[10%] top-[58%] lg:top-[46%] text-center lg:text-right z-30 pointer-events-none"
+          >
+            <h2 className="text-5xl md:text-7xl lg:text-7xl font-black text-[#5c1a16] uppercase drop-shadow-xl">
+              خدماتنا
+            </h2>
+            <p className="text-[#4a3530]/80 text-base md:text-lg font-bold mt-3 tracking-widest hidden lg:block">
+              نحن نصنع التميز
+            </p>
+          </motion.div>
+
+          {/* OLD TECH BOX REMOVED - now rendered as fixed element below */}
+
         </div>
       </section>
 
+      {/* ─── Fixed Services Tech Box ─── Persists beyond sticky section ─── */}
+      <motion.div
+        style={{ opacity: boxFinalOpacity, y: boxY, boxShadow: boxGlow }}
+        className="fixed right-[5%] lg:right-[8%] top-[25%] w-[88vw] lg:w-[380px] border-[2px] border-dashed border-[#5c1a16]/40 bg-[#f5ecd8]/95 backdrop-blur-md rounded-lg z-[90] pointer-events-auto"
+      >
+        {/* Corner Markers */}
+        <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-[#5c1a16] -mt-1 -ml-1 rounded-tl" />
+        <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-[#5c1a16] -mt-1 -mr-1 rounded-tr" />
+        <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-[#5c1a16] -mb-1 -ml-1 rounded-bl" />
+        <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-[#5c1a16] -mb-1 -mr-1 rounded-br" />
+
+        {/* Develop */}
+        <motion.div style={{ opacity: developOpacity, y: developY }}>
+          <div
+            onMouseEnter={() => setHoveredSection('dev')}
+            onMouseLeave={() => setHoveredSection(null)}
+            style={{ 
+              opacity: hoveredSection === 'des' ? 0.3 : 1,
+              backgroundColor: hoveredSection === 'dev' ? 'rgba(255,255,255,0.7)' : 'transparent',
+              boxShadow: hoveredSection === 'dev' ? '0 10px 30px -10px rgba(92,26,22,0.2)' : 'none'
+            }}
+            className="p-7 rounded-t-lg cursor-default transition-all duration-500"
+          >
+            <div className="flex items-center gap-3 mb-3">
+              <h3 className="text-2xl font-black tracking-wide" style={{ color: hoveredSection === 'dev' ? '#5c1a16' : '#2d1a12' }}>برمجة</h3>
+              <div className="p-2 rounded-md transition-all duration-300" style={{ background: hoveredSection === 'dev' ? 'rgba(92,26,22,0.9)' : 'rgba(92,26,22,0.08)', color: hoveredSection === 'dev' ? '#fff' : '#5c1a16' }}>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+              </div>
+            </div>
+            <p className="text-sm font-bold leading-relaxed border-r-2 pr-3 mb-4 transition-all duration-300" style={{ color: hoveredSection === 'dev' ? '#000' : 'rgba(74,53,48,0.75)', borderColor: hoveredSection === 'dev' ? '#5c1a16' : 'rgba(92,26,22,0.15)' }}>
+              برمجة تطبيقات حديثة، مواقع ويب تفاعلية، ولوحات تحكم متقدمة بأحدث تكنولوجيا.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {["Web Apps", "Dashboards", "FiveM", "APIs", "Next.js"].map(tag => (
+                <span key={tag} className="px-2.5 py-1 border text-[10px] font-bold rounded-full transition-all duration-300" style={{ background: hoveredSection === 'dev' ? 'rgba(92,26,22,0.12)' : 'rgba(92,26,22,0.04)', borderColor: hoveredSection === 'dev' ? 'rgba(92,26,22,0.5)' : 'rgba(92,26,22,0.2)', color: hoveredSection === 'dev' ? '#5c1a16' : 'rgba(92,26,22,0.55)' }}>{tag}</span>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+
+        <div className="mx-6 border-t-2 border-dashed border-[#5c1a16]/25" />
+
+        {/* Design */}
+        <motion.div style={{ opacity: designOpacity, y: designY }}>
+          <div
+            onMouseEnter={() => setHoveredSection('des')}
+            onMouseLeave={() => setHoveredSection(null)}
+            style={{ 
+              opacity: hoveredSection === 'dev' ? 0.3 : 1,
+              backgroundColor: hoveredSection === 'des' ? 'rgba(255,255,255,0.7)' : 'transparent',
+              boxShadow: hoveredSection === 'des' ? '0 -10px 30px -10px rgba(92,26,22,0.2)' : 'none'
+            }}
+            className="p-7 rounded-b-lg cursor-default transition-all duration-500"
+          >
+            <div className="flex items-center gap-3 mb-3">
+              <h3 className="text-2xl font-black tracking-wide" style={{ color: hoveredSection === 'des' ? '#5c1a16' : '#2d1a12' }}>تصميم</h3>
+              <div className="p-2 rounded-md transition-all duration-300" style={{ background: hoveredSection === 'des' ? 'rgba(92,26,22,0.9)' : 'rgba(92,26,22,0.08)', color: hoveredSection === 'des' ? '#fff' : '#5c1a16' }}>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+              </div>
+            </div>
+            <p className="text-sm font-bold leading-relaxed border-r-2 pr-3 mb-4 transition-all duration-300" style={{ color: hoveredSection === 'des' ? '#000' : 'rgba(74,53,48,0.75)', borderColor: hoveredSection === 'des' ? '#5c1a16' : 'rgba(92,26,22,0.15)' }}>
+              نصنع هوية تسكن في الذاكرة. من تصميم الشعارات والتغليف إلى تجربة المستخدم (UI/UX).
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {["UI/UX", "Logos", "Branding", "3D Design", "Motion"].map(tag => (
+                <span key={tag} className="px-2.5 py-1 border text-[10px] font-bold rounded-full transition-all duration-300" style={{ background: hoveredSection === 'des' ? 'rgba(92,26,22,0.12)' : 'rgba(92,26,22,0.04)', borderColor: hoveredSection === 'des' ? 'rgba(92,26,22,0.5)' : 'rgba(92,26,22,0.2)', color: hoveredSection === 'des' ? '#5c1a16' : 'rgba(92,26,22,0.55)' }}>{tag}</span>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+      </motion.div>
+
       {/* ─── Glowing Experience Timeline ─── */}
+      <div ref={servicesEndRef} />
       <TimelineSection />
 
       {/* ─── Design Skills Globe ─── */}
       <DesignGlobe />
 
-      {/* ─── Projects Grid ─── */}
-      <section id="projects" className="relative z-30 py-20 px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex justify-between items-end mb-14">
-            <div>
-              <h2 className="text-4xl md:text-5xl font-black text-[#2d1a12]">أعمالنا</h2>
-              <p className="mt-3 text-lg text-[#4a3530]/70">لمحة من إبداعاتنا البصرية الفاخرة</p>
-            </div>
-            <Link href="/projects" className="flex items-center gap-2 font-black text-[#5c1a16] hover:opacity-70 transition-opacity">
-              الكل <ArrowUpLeft size={18} />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {displayPackages.slice(0, 3).map((pkg, i) => (
-              <motion.div
-                key={pkg.id}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.15, duration: 0.8 }}
-                className="group rounded-3xl overflow-hidden border border-[#5c1a16]/15 bg-[#f5ecd8]/60 backdrop-blur-sm shadow-sm hover:shadow-xl transition-all"
-              >
-                <div className="relative aspect-[4/3] overflow-hidden">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={pkg.thumbnailUrl} alt={pkg.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                  <div className="absolute top-4 left-4 bg-[#5c1a16] text-[#f5ecd8] px-4 py-1.5 rounded-full text-sm font-black">
-                    ${pkg.price}
-                  </div>
-                </div>
-                <div className="p-6">
-                  <h3 className="font-black text-[#2d1a12] text-xl mb-2">{pkg.title}</h3>
-                  <p className="text-sm text-[#4a3530]/70 leading-relaxed line-clamp-2">{pkg.description}</p>
-                  <Link href={`/packages/${pkg.id}`} className="mt-4 inline-flex items-center gap-2 text-[#5c1a16] font-bold text-sm hover:gap-3 transition-all">
-                    تفاصيل الباقة <ArrowLeft size={14} />
-                  </Link>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* ─── Projects Grid (Horizontal Scroll Hijack) ─── */}
+      <HorizontalProjects projects={designProjects} />
 
       {/* ─── Reviews ─── */}
       <section id="reviews" className="relative z-10 py-24 px-6">
