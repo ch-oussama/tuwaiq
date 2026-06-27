@@ -1,7 +1,29 @@
 "use client";
 
 import { useEffect, useRef, useCallback } from "react";
+import { useBranch } from "@/lib/BranchContext";
 import { motion } from "framer-motion";
+
+const STUDIO_SKILLS = [
+  { text: "تصوير", weight: 9 },
+  { text: "مونتاج", weight: 9 },
+  { text: "تصميم", weight: 8 },
+  { text: "تعديل", weight: 8 },
+  { text: "تحريك", weight: 7 },
+  { text: "تصميم 3D", weight: 9 },
+  { text: "كاميرا", weight: 7 },
+  { text: "تصميم سوشيال ميديا", weight: 6 },
+  { text: "تحسين اداء", weight: 7 },
+  { text: "انيميشن", weight: 6 },
+  { text: "افلام", weight: 7 },
+  { text: "تريلرات", weight: 8 },
+  { text: "اعلانات", weight: 7 },
+  { text: "تصميم مواقع", weight: 7 },
+  { text: "تصميم تطبيقات", weight: 8 },
+  { text: "تصميم العاب", weight: 6 },
+  { text: "تصميم واجهات", weight: 7 },
+  { text: "تصميم تجربة المستخدم", weight: 6 },
+];
 
 const DESIGN_SKILLS = [
   { text: "هوية بصرية", weight: 9 },
@@ -35,10 +57,10 @@ interface Tag {
   z: number;
 }
 
-function initTags(): Tag[] {
-  return DESIGN_SKILLS.map((skill, i) => {
-    const phi = Math.acos(-1 + (2 * i) / DESIGN_SKILLS.length);
-    const theta = Math.sqrt(DESIGN_SKILLS.length * Math.PI) * phi;
+function initTags(skills: {text: string, weight: number}[]): Tag[] {
+  return skills.map((skill, i) => {
+    const phi = Math.acos(-1 + (2 * i) / skills.length);
+    const theta = Math.sqrt(skills.length * Math.PI) * phi;
     return {
       text: skill.text,
       weight: skill.weight,
@@ -63,12 +85,19 @@ function dist3d(a: Tag, b: Tag) {
 }
 
 export default function DesignGlobe() {
+  const { branch } = useBranch();
+  const currentSkills = branch === 'studio' ? STUDIO_SKILLS : DESIGN_SKILLS;
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const labelsRef = useRef<HTMLDivElement>(null);
-  const tagsRef = useRef<Tag[]>(initTags());
+  const tagsRef = useRef<Tag[]>(initTags(currentSkills));
   const mouseRef = useRef({ x: 0, y: 0 });
   const rafRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    tagsRef.current = initTags(currentSkills);
+  }, [branch]);
+
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
     const rect = containerRef.current?.getBoundingClientRect();
@@ -99,7 +128,7 @@ export default function DesignGlobe() {
     const ctx = canvas.getContext("2d")!;
 
     // Pre-create label spans
-    const spans: HTMLSpanElement[] = DESIGN_SKILLS.map((skill, i) => {
+    const spans: HTMLSpanElement[] = currentSkills.map((skill, i) => {
       const span = document.createElement("span");
       span.textContent = skill.text;
       span.style.cssText = `
@@ -110,7 +139,7 @@ export default function DesignGlobe() {
         font-weight: 900;
         font-family: inherit;
         white-space: nowrap;
-        color: #2d1a12;
+        color: ${branch === 'studio' ? '#D4AF37' : '#2d1a12'};
         transition: color 0.2s;
         transform-origin: center;
         cursor: default;
@@ -177,7 +206,7 @@ export default function DesignGlobe() {
             ctx.beginPath();
             ctx.moveTo(ax, ay);
             ctx.quadraticCurveTo(cpx, cpy, bx, by);
-            ctx.strokeStyle = `rgba(92, 26, 22, ${Math.min(lineAlpha, 0.45)})`;
+            ctx.strokeStyle = branch === "studio" ? `rgba(212, 175, 55, ${Math.min(lineAlpha, 0.35)})` : `rgba(92, 26, 22, ${Math.min(lineAlpha, 0.45)})`;
             ctx.lineWidth = 1.0;
             ctx.stroke();
           }
@@ -191,7 +220,7 @@ export default function DesignGlobe() {
         span.style.transform = `translate(calc(-50% + ${px}px), calc(-50% + ${py}px))`;
         span.style.fontSize = `${fontSize}px`;
         span.style.opacity = String(alpha);
-        span.style.color = tag.z > 0 ? "#2d1a12" : "#6b3a32";
+        span.style.color = branch === "studio" ? (tag.z > 0 ? "#111" : "#555") : (tag.z > 0 ? "#2d1a12" : "#6b3a32");
         span.style.zIndex = String(Math.round(tag.z + RADIUS));
       });
 
@@ -217,14 +246,14 @@ export default function DesignGlobe() {
           transition={{ duration: 0.8 }}
           className="text-center mb-12"
         >
-          <h2 className="text-xs font-black text-[#5c1a16] tracking-[0.3em] uppercase mb-4">
-            تخصصاتنا
+          <h2 className={`text-xs font-black ${branch === 'studio' ? 'text-[#D4AF37]' : 'text-[#5c1a16]'} tracking-[0.3em] uppercase mb-4`}>
+            {branch === 'studio' ? 'تخصصاتنا التقنية' : 'تخصصاتنا'}
           </h2>
-          <h3 className="text-4xl md:text-5xl font-black text-[#2d1a12]">
-            كوكب الإبداع البصري
+          <h3 className={`text-4xl md:text-5xl font-black ${branch === 'studio' ? 'text-white' : 'text-[#2d1a12]'}`}>
+            {branch === 'studio' ? 'كوكب الإبداع الرقمي' : 'كوكب الإبداع البصري'}
           </h3>
-          <p className="mt-4 text-[#4a3530]/60 text-base max-w-md mx-auto">
-            حرّك الماوس فوق الكوكب وتفاعل مع عالمنا التصميمي
+          <p className={`mt-4 text-base max-w-md mx-auto ${branch === 'studio' ? 'text-white/50' : 'text-[#4a3530]/60'}`}>
+            حرّك الماوس فوق الكوكب وتفاعل مع عالمنا
           </p>
         </motion.div>
 
@@ -236,13 +265,13 @@ export default function DesignGlobe() {
         >
           {/* Ambient glow */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="w-72 h-72 rounded-full bg-[#5c1a16]/6 blur-3xl" />
+            <div className={`w-72 h-72 rounded-full ${branch === 'studio' ? 'bg-[#D4AF37]/10' : 'bg-[#5c1a16]/6'} blur-3xl`} />
           </div>
 
           {/* Faint outer ring */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div
-              className="rounded-full border border-[#5c1a16]/12"
+              className={`rounded-full border ${branch === 'studio' ? 'border-[#D4AF37]/20' : 'border-[#5c1a16]/12'}`}
               style={{ width: RADIUS * 2, height: RADIUS * 2 }}
             />
           </div>
@@ -263,7 +292,7 @@ export default function DesignGlobe() {
 
           {/* Center glowing dot */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-50">
-            <div className="w-3 h-3 rounded-full bg-[#5c1a16] shadow-[0_0_14px_6px_rgba(92,26,22,0.55)]" />
+            <div className={`w-3 h-3 rounded-full ${branch === 'studio' ? 'bg-[#D4AF37] shadow-[0_0_14px_6px_rgba(212,175,55,0.4)]' : 'bg-[#5c1a16] shadow-[0_0_14px_6px_rgba(92,26,22,0.55)]'}`} />
           </div>
         </div>
       </div>

@@ -92,8 +92,7 @@ export default function DesignHomeClient({ packages, projects }: { packages: Pac
     }
     return '-5vh'; 
   });
-
-  const logoScale = useTransform(scrollYProgress, [0, 0.60, 0.75], [1, 1, 1.8]); 
+  const logoScale = useTransform(scrollYProgress, [0, 0.60, 0.75], [1, 1, 1.45]); 
   const logoFilter = useTransform(scrollYProgress, [0.70, 0.85], ["drop-shadow(0px 0px 0px rgba(92,26,22,0))", "drop-shadow(0px 20px 40px rgba(92,26,22,0.3))"]);
 
   // 3. About Text

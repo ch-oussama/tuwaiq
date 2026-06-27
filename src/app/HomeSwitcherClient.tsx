@@ -13,5 +13,5 @@ export default function HomeSwitcherClient({ packages, projects }: { packages: P
   }
 
   // Default to studio / HomeClient
-  return <HomeClient packages={packages} />;
+  return <HomeClient packages={packages} projects={projects} />;
 }

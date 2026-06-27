@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { addReview } from '@/lib/db';
+import { cookies } from 'next/headers';
+import { addReview, deleteReview } from '@/lib/db';
 
 export async function POST(req: Request) {
   try {
@@ -12,5 +13,23 @@ export async function POST(req: Request) {
     return NextResponse.json(review, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to add review' }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: Request) {
+  const adminAuth = (await cookies()).get('admin_auth')?.value;
+  if (adminAuth !== 'true') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  try {
+    const { packageId, reviewId } = await req.json();
+    if (!packageId || !reviewId) return NextResponse.json({ error: 'Missing IDs' }, { status: 400 });
+    
+    const success = await deleteReview(packageId, reviewId);
+    if (!success) return NextResponse.json({ error: 'Failed or not found' }, { status: 404 });
+    
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to delete review' }, { status: 500 });
   }
 }

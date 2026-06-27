@@ -2,7 +2,7 @@
 
 import { Package, Project } from '@/lib/db';
 import { logoutAction } from './actions';
-import { LogOut, Plus, Trash2, Star, PackageOpen, AlertTriangle, CheckCircle, Lightbulb } from 'lucide-react';
+import { LogOut, Plus, Trash2, Star, PackageOpen, AlertTriangle, CheckCircle, Lightbulb, Edit2, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -23,11 +23,97 @@ export default function AdminDashboard({ initialPackages, initialProjects }: { i
 
   // Project form state
   const [projectLoading, setProjectLoading] = useState(false);
+  const [editingPackage, setEditingPackage] = useState<Package | null>(null);
+  const [editingProject, setEditingProject] = useState<Project | null>(null);
 
   const showNotif = (type: 'success' | 'error', msg: string) => {
     setNotification({ type, msg });
     setTimeout(() => setNotification(null), 3500);
   };
+
+  
+  async function handleEditPackage(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!editingPackage) return;
+    setLoading(true);
+    const formData = new FormData(e.currentTarget);
+    const body = {
+      id: editingPackage.id,
+      title: formData.get('title'),
+      shortDescription: formData.get('shortDescription'),
+      description: formData.get('description'),
+      price: Number(formData.get('price')),
+      branch: formData.get('branch'),
+      thumbnailUrl: formData.get('thumbnailUrl'),
+      images: (formData.get('images') as string).split(',').map(s => s.trim()).filter(s => s),
+      features: (formData.get('features') as string).split('\n').map(s => s.trim()).filter(s => s),
+    };
+    try {
+      const res = await fetch('/api/packages', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      if (res.ok) {
+        showNotif('success', 'تم تعديل الباقة بنجاح ✓');
+        setEditingPackage(null);
+        router.refresh();
+      } else {
+        showNotif('error', 'فشل التعديل');
+      }
+    } catch {
+      showNotif('error', 'خطأ في الاتصال');
+    }
+    setLoading(false);
+  }
+
+  async function handleEditProject(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!editingProject) return;
+    setProjectLoading(true);
+    const formData = new FormData(e.currentTarget);
+    const body = {
+      id: editingProject.id,
+      title: formData.get('title'),
+      category: formData.get('category'),
+      description: formData.get('description'),
+      imageUrl: formData.get('imageUrl'),
+      branch: formData.get('branch'),
+      tags: (formData.get('tags') as string).split(',').map(s => s.trim()).filter(s => s),
+    };
+    try {
+      const res = await fetch('/api/projects', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      if (res.ok) {
+        showNotif('success', 'تم تعديل المشروع بنجاح ✓');
+        setEditingProject(null);
+        router.refresh();
+      } else {
+        showNotif('error', 'فشل التعديل');
+      }
+    } catch {
+      showNotif('error', 'خطأ في الاتصال');
+    }
+    setProjectLoading(false);
+  }
+
+  async function handleDeleteReview(packageId: string, reviewId: string) {
+    if (!confirm('هل أنت متأكد من حذف هذا التقييم؟')) return;
+    try {
+      const res = await fetch('/api/reviews', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ packageId, reviewId }),
+      });
+      if (res.ok) {
+        showNotif('success', 'تم حذف التقييم بنجاح ✓');
+        router.refresh();
+      }
+    } catch {}
+  }
 
   async function handleLogout() {
     await logoutAction();

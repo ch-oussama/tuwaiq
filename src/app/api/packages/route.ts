@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { addPackage, getPackages, deletePackage } from '@/lib/db';
+import { addPackage, getPackages, deletePackage, updatePackage } from '@/lib/db';
 
 // GET all packages
 export async function GET() {
@@ -42,3 +42,21 @@ export async function DELETE(req: Request) {
     return NextResponse.json({ error: 'Failed to delete package' }, { status: 500 });
   }
 }
+
+// PUT to update a package
+export async function PUT(req: Request) {
+  const adminAuth = (await cookies()).get('admin_auth')?.value;
+  if (adminAuth !== 'true') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  try {
+    const { id, ...updates } = await req.json();
+    if (!id) return NextResponse.json({ error: 'Package ID required' }, { status: 400 });
+    const updated = await updatePackage(id, updates);
+    if (!updated) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    return NextResponse.json(updated);
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to update package' }, { status: 500 });
+  }
+}
+

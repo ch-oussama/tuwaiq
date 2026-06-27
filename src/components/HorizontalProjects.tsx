@@ -5,8 +5,11 @@ import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Project } from "@/lib/db";
+import { useBranch } from "@/lib/BranchContext";
 
 export default function HorizontalProjects({ projects }: { projects: Project[] }) {
+  const { branch } = useBranch();
+  const displayProjects = projects.slice(0, 4);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // We track the scroll of the entire tall container.
@@ -40,7 +43,7 @@ export default function HorizontalProjects({ projects }: { projects: Project[] }
 
   const opacityTransform = useTransform(scrollYProgress, [0.9, 1], [1, 0]);
 
-  if (!projects || projects.length === 0) return null;
+  if (!displayProjects || displayProjects.length === 0) return null;
 
   return (
     // The wrapper height dictates how long the user scrolls to get through the cards.
@@ -48,17 +51,17 @@ export default function HorizontalProjects({ projects }: { projects: Project[] }
     <section 
       ref={containerRef} 
       className="relative z-30"
-      style={{ height: `calc(100vh + ${projects.length * 80}vh)` }}
+      style={{ height: `calc(100vh + ${displayProjects.length * 80}vh)` }}
     >
-      <div dir="ltr" className="sticky top-0 h-screen w-full overflow-hidden flex items-center bg-[#f5ecd8] border-y border-[#5c1a16]/10 relative">
+      <div dir="ltr" className={`sticky top-0 h-screen w-full overflow-hidden flex items-center ${branch === 'studio' ? 'bg-black/80 border-y border-[#D4AF37]/20' : 'bg-[#f5ecd8] border-y border-[#5c1a16]/10'} relative`}>
         
         {/* Title pinned in the background/top */}
         <motion.div 
           style={{ opacity: opacityTransform }}
           className="absolute top-6 md:top-12 left-0 right-0 text-center px-6 pointer-events-none z-50"
         >
-          <h2 className="text-4xl md:text-5xl font-black text-[#2d1a12]">أعمالنا</h2>
-          <p className="mt-3 text-lg text-[#4a3530]/70">لمحة من إبداعاتنا البصرية الفاخرة</p>
+          <h2 className={`text-4xl md:text-5xl font-black ${branch === 'studio' ? 'text-[#111]' : 'text-[#2d1a12]'}`}>أعمالنا</h2>
+          <p className={`mt-3 text-lg ${branch === 'studio' ? 'text-[#333]/70' : 'text-[#4a3530]/70'}`}>لمحة من إبداعاتنا الفاخرة</p>
         </motion.div>
 
         {/* The Horizontal Track */}
@@ -67,7 +70,7 @@ export default function HorizontalProjects({ projects }: { projects: Project[] }
           style={{ x: xTransform }} 
           className="flex h-full items-center gap-6 md:gap-14 px-[5vw] md:px-[10vw]"
         >
-          {projects.map((project, index) => {
+          {displayProjects.map((project, index) => {
             // Sequential numbering: 01, 02, etc.
             const num = (index + 1).toString().padStart(2, '0');
 
@@ -79,13 +82,17 @@ export default function HorizontalProjects({ projects }: { projects: Project[] }
                 whileInView="visible"
                 viewport={{ once: false, amount: 0.3 }}
                 dir="rtl"
-                className="relative flex-shrink-0 w-[90vw] md:w-[75vw] lg:w-[65vw] max-w-5xl h-[55vh] md:h-[60vh] rounded-3xl bg-[#5c1a16] shadow-2xl overflow-hidden flex flex-col md:flex-row group"
+                className={`relative flex-shrink-0 w-[90vw] md:w-[75vw] lg:w-[65vw] max-w-5xl h-[55vh] md:h-[60vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row group ${
+                  branch === 'studio' ? 'bg-[#0a0a0a] border border-[#D4AF37]/30' : 'bg-[#5c1a16]'
+                }`}
               >
                 {/* Number overlay */}
                 <motion.div 
                   variants={{ hidden: { opacity: 0, scale: 0.5 }, visible: { opacity: 0.1, scale: 1 } }}
                   transition={{ duration: 0.8, delay: 0.2 }}
-                  className="absolute top-4 right-6 text-8xl md:text-9xl font-black text-[#f5ecd8] pointer-events-none z-0"
+                  className={`absolute top-4 right-6 text-8xl md:text-9xl font-black pointer-events-none z-0 ${
+                    branch === 'studio' ? 'text-white' : 'text-[#f5ecd8]'
+                  }`}
                 >
                   {num}
                 </motion.div>
@@ -102,19 +109,25 @@ export default function HorizontalProjects({ projects }: { projects: Project[] }
                     alt={project.title} 
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 max-w-[none]" 
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#5c1a16] to-transparent opacity-80 md:hidden" />
+                  <div className={`absolute inset-0 bg-gradient-to-t opacity-80 md:hidden ${
+                    branch === 'studio' ? 'from-[#0a0a0a] to-transparent' : 'from-[#5c1a16] to-transparent'
+                  }`} />
                 </motion.div>
 
                 {/* Right Side: Content (Title first, then Description) */}
-                <div className="w-full md:w-[45%] p-8 md:p-12 flex flex-col justify-center z-10 text-[#f5ecd8] bg-gradient-to-t md:bg-gradient-to-r from-[#5c1a16] to-[#6a211b]">
+                <div className={`w-full md:w-[45%] p-8 md:p-12 flex flex-col justify-center z-10 text-[#f5ecd8] bg-gradient-to-t md:bg-gradient-to-r ${
+                  branch === 'studio' ? 'from-[#0a0a0a] to-[#1a1a1a]' : 'from-[#5c1a16] to-[#6a211b]'
+                }`}>
                   
                   {/* Title (appears first) */}
                   <motion.div
                     variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
                     transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
                   >
-                    <div className="text-[#f5ecd8]/60 text-sm font-bold tracking-widest uppercase mb-2">
-                      {project.category || 'هوية بصرية'}
+                    <div className={`text-sm font-bold tracking-widest uppercase mb-2 ${
+                      branch === 'studio' ? 'text-[#D4AF37]' : 'text-[#f5ecd8]/60'
+                    }`}>
+                      {project.category || (branch === 'studio' ? 'برمجة' : 'هوية بصرية')}
                     </div>
                     <h3 className="text-3xl md:text-5xl font-black mb-6 leading-tight">
                       {project.title}
@@ -126,12 +139,18 @@ export default function HorizontalProjects({ projects }: { projects: Project[] }
                     variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
                     transition={{ duration: 0.6, delay: 0.6, ease: "easeOut" }}
                   >
-                    <p className="text-[#f5ecd8]/80 text-base md:text-lg leading-relaxed mb-8 line-clamp-3 md:line-clamp-4">
+                    <p className={`text-base md:text-lg leading-relaxed mb-8 line-clamp-3 md:line-clamp-4 ${
+                      branch === 'studio' ? 'text-[#f5ecd8]/70' : 'text-[#f5ecd8]/80'
+                    }`}>
                       {project.description}
                     </p>
                     
                     <Link href={`/projects/${project.id}`}>
-                      <button className="flex items-center gap-3 bg-[#f5ecd8] text-[#5c1a16] px-6 py-3 rounded-full font-bold hover:gap-4 hover:shadow-lg transition-all">
+                      <button className={`flex items-center gap-3 px-6 py-3 rounded-full font-bold transition-all hover:gap-4 hover:shadow-lg ${
+                        branch === 'studio' 
+                          ? 'bg-[#D4AF37] text-black hover:bg-[#c9a334]' 
+                          : 'bg-[#f5ecd8] text-[#5c1a16]'
+                      }`}>
                         استعراض المشروع <ArrowLeft size={18} />
                       </button>
                     </Link>

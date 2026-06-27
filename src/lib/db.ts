@@ -98,6 +98,23 @@ export async function addReview(packageId: string, review: Omit<Review, 'id'>): 
   return newReview;
 }
 
+export async function deleteReview(packageId: string, reviewId: string): Promise<boolean> {
+  try {
+    const pkgRef = doc(db, 'packages', packageId);
+    const snapshot = await getDoc(pkgRef);
+    if (!snapshot.exists()) return false;
+    
+    const pkgData = snapshot.data();
+    const currentReviews = (pkgData.reviews || []) as Review[];
+    const filteredReviews = currentReviews.filter(r => r.id !== reviewId);
+    
+    await updateDoc(pkgRef, { reviews: filteredReviews });
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
 export async function getProjects(): Promise<Project[]> {
   try {
     const snapshot = await getDocs(projectsCollection);
@@ -112,6 +129,13 @@ export async function addProject(project: Omit<Project, 'id'>): Promise<Project>
   const newRef = doc(projectsCollection);
   await setDoc(newRef, project);
   return { id: newRef.id, ...project } as Project;
+}
+
+export async function updateProject(id: string, updates: Partial<Project>): Promise<Project | null> {
+  const docRef = doc(db, 'projects', id);
+  await updateDoc(docRef, updates);
+  const updated = await getDoc(docRef);
+  return updated.exists() ? ({ id: updated.id, ...updated.data() } as Project) : null;
 }
 
 export async function deleteProject(id: string): Promise<boolean> {

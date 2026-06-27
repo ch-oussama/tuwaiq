@@ -10,7 +10,7 @@ export default function BranchGate({ children }: { children: React.ReactNode }) 
   const [isHovering, setIsHovering] = useState<Branch>(null);
   
   // Intro Video States
-  const [showIntro, setShowIntro] = useState(true);
+  const [showIntro, setShowIntro] = useState(false);
   const [introIsFading, setIntroIsFading] = useState(false);
   const soundRef = useRef<HTMLAudioElement | null>(null);
   const soundTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
