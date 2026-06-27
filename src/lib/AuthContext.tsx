@@ -28,7 +28,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // أضف أي إيميلات إدارية جديدة هنا داخل هذه القائمة
   const adminEmails = [
     "godiabout57@gmail.com",
-    // "email2@gmail.com",
+    "abofilah86@gmail.com",
   ];
 
   const isAdmin = user?.email ? adminEmails.includes(user.email.toLowerCase()) : false;
