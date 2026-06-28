@@ -6,16 +6,25 @@ import { ExternalLink } from 'lucide-react';
 import { useState } from 'react';
 import type { Project } from '@/lib/db';
 import { useBranch } from '@/lib/BranchContext';
+import { useLang } from '@/lib/LanguageContext';
+import { t } from '@/lib/translations';
 
-const categories = ['الكل', 'برمجة', 'تصميم جرافيك', '3D design', 'لوقو'];
+const categories = [
+  { key: 'all', labelKey: 'projects.all' },
+  { key: 'برمجة', labelKey: 'projects.coding' },
+  { key: 'تصميم جرافيك', labelKey: 'projects.graphic' },
+  { key: '3D design', labelKey: '3D design' },
+  { key: 'لوقو', labelKey: 'projects.logo' },
+];
 
 export default function ProjectsClient({ projects }: { projects: Project[] }) {
-  const [activeCategory, setActiveCategory] = useState('الكل');
+  const [activeCategory, setActiveCategory] = useState('all');
   const { branch } = useBranch();
+  const { lang } = useLang();
 
   const branchProjects = projects.filter(p => !p.branch || p.branch === branch);
 
-  const filteredProjects = activeCategory === 'الكل'
+  const filteredProjects = activeCategory === 'all'
     ? branchProjects
     : branchProjects.filter(p => p.category === activeCategory);
 
@@ -29,10 +38,10 @@ export default function ProjectsClient({ projects }: { projects: Project[] }) {
           className="text-center mb-16"
         >
           <h1 className="text-5xl md:text-7xl font-black text-brand-brown mb-4">
-            مشاريعنا
+            {t(lang, 'projects.title')}
           </h1>
           <p className="text-xl text-foreground/70 max-w-2xl mx-auto">
-            نماذج من أعمالنا المتميزة التي نفخر بتقديمها لعملائنا حول العالم
+            {t(lang, 'projects.subtitle')}
           </p>
           <div className="w-24 h-1 bg-brand-gold mx-auto mt-6 rounded-full" />
         </motion.div>
@@ -40,21 +49,21 @@ export default function ProjectsClient({ projects }: { projects: Project[] }) {
         {/* Category Filter */}
         <div className="flex flex-wrap justify-center gap-3 mb-12">
           {categories.map((cat, i) => {
-            const isActive = activeCategory === cat;
+            const isActive = activeCategory === cat.key;
             return (
               <motion.button
-                key={cat}
+                key={cat.key}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
-                onClick={() => setActiveCategory(cat)}
+                onClick={() => setActiveCategory(cat.key)}
                 className={`px-6 py-2.5 rounded-full font-bold text-sm border-2 transition-all ${
                   isActive
                     ? 'bg-brand-brown text-brand-beige border-brand-brown shadow-md'
                     : 'border-border text-foreground hover:border-brand-brown hover:text-brand-brown bg-surface'
                 }`}
               >
-                {cat}
+                {cat.labelKey === cat.key ? cat.labelKey : t(lang, cat.labelKey)}
               </motion.button>
             );
           })}
@@ -99,7 +108,7 @@ export default function ProjectsClient({ projects }: { projects: Project[] }) {
                         ))}
                       </div>
                       <div className="flex items-center gap-2 mx-auto px-5 py-2.5 bg-brand-gold text-brand-brown rounded-full font-black text-sm hover:scale-105 transition-transform w-max">
-                        عرض المشروع <ExternalLink size={14} />
+                        {t(lang, 'projects.view_project')} <ExternalLink size={14} />
                       </div>
                     </div>
                   </div>
@@ -125,7 +134,7 @@ export default function ProjectsClient({ projects }: { projects: Project[] }) {
         {filteredProjects.length === 0 && (
           <div className="text-center py-24 text-foreground/50">
             <p className="text-6xl mb-4">📂</p>
-            <p className="text-xl font-bold">لا توجد مشاريع في هذا التصنيف.</p>
+            <p className="text-xl font-bold">{t(lang, 'projects.no_projects')}</p>
           </div>
         )}
 
@@ -136,12 +145,12 @@ export default function ProjectsClient({ projects }: { projects: Project[] }) {
           viewport={{ once: true }}
           className="text-center mt-20"
         >
-          <p className="text-xl text-foreground/70 mb-6">هل لديك مشروع تريد تنفيذه؟</p>
+          <p className="text-xl text-foreground/70 mb-6">{t(lang, 'projects.have_project')}</p>
           <Link
             href="/packages"
             className="inline-block px-10 py-4 bg-brand-brown text-brand-beige font-black text-lg rounded-full hover:scale-105 transition-transform shadow-xl"
           >
-            ابدأ مشروعك معنا
+            {t(lang, 'projects.start_project')}
           </Link>
         </motion.div>
       </div>

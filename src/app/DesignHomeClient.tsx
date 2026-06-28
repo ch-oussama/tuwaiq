@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, useScroll, useTransform } from 'framer-motion';
+import CountUp from 'react-countup';
 import Link from 'next/link';
 import { Package, Project } from '@/lib/db';
 import { DUMMY_PACKAGES, DUMMY_REVIEWS, PROJECTS as DUMMY_PROJECTS } from '@/lib/dummyData';
@@ -61,6 +62,7 @@ export default function DesignHomeClient({ packages, projects }: { packages: Pac
   const heroOpacity = useTransform(scrollYProgress, [0, 0.12], [1, 0]);
   const heroY = useTransform(scrollYProgress, [0, 0.12], ["0vh", "-10vh"]);
   const heroDisplay = useTransform(scrollYProgress, (v) => v > 0.14 ? 'none' : 'flex') as any;
+
 
   // 2. Logo Transforms
   const logoX = useTransform(scrollYProgress, (v) => {
@@ -138,16 +140,23 @@ export default function DesignHomeClient({ packages, projects }: { packages: Pac
 
   return (
     <div
-      className="flex flex-col w-full min-h-screen relative overflow-clip"
-      style={{
-        backgroundImage: "url('/bg design.png')",
-        backgroundSize: 'cover',
-        backgroundPosition: 'center top',
-        backgroundAttachment: 'fixed',
-      }}
+      className="flex flex-col w-full min-h-screen relative overflow-clip bg-noise"
     >
-      {/* Overlay */}
-      <div className="fixed inset-0 bg-[#f5ecd8]/60 pointer-events-none z-0" />
+      {/* Fixed Background */}
+      <div
+        className="fixed inset-0 bg-cover bg-center -z-10"
+        aria-hidden
+      >
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: "url('/bg design.png')" }}
+        />
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-[#f5ecd8]/60 pointer-events-none" />
+      </div>
+
+      {/* Ambient glow */}
+      <div className="fixed top-[-30%] left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full bg-[#D4AF37]/8 blur-[120px] pointer-events-none -z-[5]" />
 
       {/* Dynamic Scroll Indicator */}
       <motion.div 
@@ -187,7 +196,7 @@ export default function DesignHomeClient({ packages, projects }: { packages: Pac
             className="absolute left-[8%] lg:left-[15%] top-1/2 -translate-y-1/2 flex flex-col items-center lg:items-start text-center lg:text-right max-w-[95vw] lg:max-w-4xl px-6 z-10"
           >
             <h2 className="text-xs font-black text-[#5c1a16] tracking-[0.3em] uppercase mb-4 w-full">من نحن</h2>
-            <h3 className="text-4xl md:text-5xl lg:text-[54px] font-black text-[#2d1a12] leading-[1.3] mb-6 lg:whitespace-nowrap">
+            <h3 className="text-4xl md:text-5xl lg:text-[54px] font-black text-[#2d1a12] leading-[1.3] mb-6 lg:whitespace-nowrap amber-glow">
               لسنا مجرد مصممين،
               <br className="hidden md:block"/>
               نحن
@@ -199,11 +208,11 @@ export default function DesignHomeClient({ packages, projects }: { packages: Pac
             </p>
             <div className="flex gap-10 pt-4 border-t border-[#5c1a16]/20">
               <div>
-                <h4 className="text-4xl font-black text-[#2d1a12]">+80</h4>
+                <h4 className="text-4xl font-black text-[#2d1a12]"><CountUp end={80} suffix="+" /></h4>
                 <p className="text-sm font-bold text-[#4a3530]/60 mt-1">هوية منجزة</p>
               </div>
               <div>
-                <h4 className="text-4xl font-black text-[#2d1a12]">Premium</h4>
+                <h4 className="text-4xl font-black text-[#2d1a12] gradient-gold">Premium</h4>
                 <p className="text-sm font-bold text-[#4a3530]/60 mt-1">جودة لا تُضاهى</p>
               </div>
             </div>
@@ -218,6 +227,7 @@ export default function DesignHomeClient({ packages, projects }: { packages: Pac
             <img
               src="/title of design.png"
               alt="طويق ديزاين"
+              fetchPriority="high"
               className="h-56 sm:h-64 md:h-[18rem] lg:h-[24rem] object-contain relative z-10"
             />
           </motion.div>
@@ -233,7 +243,7 @@ export default function DesignHomeClient({ packages, projects }: { packages: Pac
             </p>
 
             {/* Main Headline */}
-            <h1 className="text-3xl sm:text-4xl md:text-6xl font-black text-[#2d1a12] leading-tight mb-4 lg:mb-5 text-center">
+            <h1 className="text-3xl sm:text-4xl md:text-6xl font-black text-[#2d1a12] leading-tight mb-4 lg:mb-5 text-center amber-glow">
               تصميم هويات بصرية
               <br />
               <span className="text-[#5c1a16]">وشعارات احترافية</span>
@@ -282,7 +292,7 @@ export default function DesignHomeClient({ packages, projects }: { packages: Pac
             style={{ opacity: servicesOpacity, letterSpacing: servicesTracking, scale: servicesScale }}
             className="absolute left-[5%] lg:left-[10%] top-[58%] lg:top-[46%] text-center lg:text-right z-30 pointer-events-none"
           >
-            <h2 className="text-5xl md:text-7xl lg:text-7xl font-black text-[#5c1a16] uppercase drop-shadow-xl">
+            <h2 className="text-5xl md:text-7xl lg:text-7xl font-black text-[#5c1a16] uppercase drop-shadow-xl amber-glow">
               خدماتنا
             </h2>
             <p className="text-[#4a3530]/80 text-base md:text-lg font-bold mt-3 tracking-widest hidden lg:block">
@@ -298,7 +308,7 @@ export default function DesignHomeClient({ packages, projects }: { packages: Pac
       {/* ─── Fixed Services Tech Box ─── Persists beyond sticky section ─── */}
       <motion.div
         style={{ opacity: boxFinalOpacity, y: boxY, boxShadow: boxGlow }}
-        className="fixed right-[5%] lg:right-[8%] top-[25%] w-[88vw] lg:w-[380px] border-[2px] border-dashed border-[#5c1a16]/40 bg-[#f5ecd8]/95 backdrop-blur-md rounded-lg z-[90] pointer-events-auto"
+        className="fixed right-[5%] lg:right-[8%] top-[25%] w-[88vw] lg:w-[380px] border-[2px] border-dashed border-[#5c1a16]/40 bg-[#f5ecd8]/95 backdrop-blur-lg rounded-lg z-[90] pointer-events-auto box-gold-glow"
       >
         {/* Corner Markers */}
         <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-[#5c1a16] -mt-1 -ml-1 rounded-tl" />
@@ -369,7 +379,13 @@ export default function DesignHomeClient({ packages, projects }: { packages: Pac
 
       {/* ─── Glowing Experience Timeline ─── */}
       <div ref={servicesEndRef} />
+
+      {/* Glass Divider */}
+      <div className="glass-divider w-3/4 max-w-2xl" />
       <TimelineSection />
+
+      {/* Glass Divider */}
+      <div className="glass-divider w-3/4 max-w-2xl" />
 
       {/* ─── Design Skills Globe ─── */}
       <DesignGlobe />
@@ -377,10 +393,13 @@ export default function DesignHomeClient({ packages, projects }: { packages: Pac
       {/* ─── Projects Grid (Horizontal Scroll Hijack) ─── */}
       <HorizontalProjects projects={designProjects} />
 
+      {/* Glass Divider */}
+      <div className="glass-divider w-3/4 max-w-2xl" />
+
       {/* ─── Reviews ─── */}
       <section id="reviews" className="relative z-10 py-24 px-6">
         <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-4xl font-black text-[#2d1a12] mb-14">ماذا يقولون عنّا</h2>
+          <h2 className="text-4xl font-black text-[#2d1a12] mb-14 amber-glow">ماذا يقولون عنّا</h2>
           <div className="relative bg-[#f5ecd8]/80 backdrop-blur-md border border-[#5c1a16]/15 rounded-3xl p-10 shadow-sm">
             <Quote size={36} className="text-[#5c1a16]/30 mx-auto mb-4" />
             <p className="text-xl text-[#2d1a12] font-medium leading-relaxed mb-8">

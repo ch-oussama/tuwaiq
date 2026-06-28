@@ -4,8 +4,11 @@ import { motion } from 'framer-motion';
 import { Package } from '@/lib/db';
 import { Star, CheckCircle, ExternalLink } from 'lucide-react';
 import { useState } from 'react';
+import { useLang } from '@/lib/LanguageContext';
+import { t } from '@/lib/translations';
 
 export default function SinglePackageClient({ pkg }: { pkg: Package }) {
+  const { lang } = useLang();
   const [activeImage, setActiveImage] = useState(pkg.thumbnailUrl);
   const allImages = [pkg.thumbnailUrl, ...pkg.images];
 
@@ -44,7 +47,7 @@ export default function SinglePackageClient({ pkg }: { pkg: Package }) {
             </p>
 
             <div className="bg-surface rounded-2xl p-6 border border-border mb-8 shadow-sm">
-              <h3 className="text-xl font-bold mb-4 border-b border-border pb-2">مميزات الباقة</h3>
+              <h3 className="text-xl font-bold mb-4 border-b border-border pb-2">{t(lang, 'packages.features')}</h3>
               <ul className="space-y-3">
                 {pkg.features.map((feature, i) => (
                   <li key={i} className="flex items-center gap-3 text-foreground/80">
@@ -61,7 +64,7 @@ export default function SinglePackageClient({ pkg }: { pkg: Package }) {
               rel="noopener noreferrer"
               className="w-full py-4 bg-brand-brown text-brand-beige dark:bg-brand-beige dark:text-brand-brown rounded-xl font-black text-xl flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform shadow-xl"
             >
-              شراء الآن عبر ديسكورد <ExternalLink size={24} />
+              {t(lang, 'packages.buy_discord')} <ExternalLink size={24} />
             </a>
           </motion.div>
         </div>
@@ -69,7 +72,7 @@ export default function SinglePackageClient({ pkg }: { pkg: Package }) {
         {/* Reviews Section */}
         {pkg.reviews && pkg.reviews.length > 0 && (
           <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mt-24">
-            <h2 className="text-3xl font-black text-brand-brown dark:text-brand-nude mb-8 text-center">تقييمات العملاء لهذه الباقة</h2>
+            <h2 className="text-3xl font-black text-brand-brown dark:text-brand-nude mb-8 text-center">{t(lang, 'packages.reviews')}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {pkg.reviews.map(review => (
                 <div key={review.id} className="bg-surface rounded-xl p-6 border border-border shadow-sm">

@@ -5,8 +5,11 @@ import Link from 'next/link';
 import { X, ChevronRight, ChevronLeft, ArrowRight, Loader2 } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
 import type { Project } from '@/lib/db';
+import { useLang } from '@/lib/LanguageContext';
+import { t } from '@/lib/translations';
 
 export default function ProjectDetailsClient({ projectId }: { projectId: string }) {
+  const { lang } = useLang();
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
@@ -83,7 +86,7 @@ export default function ProjectDetailsClient({ projectId }: { projectId: string 
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="w-12 h-12 animate-spin text-brand-gold mx-auto mb-4" />
-          <p className="text-brand-brown/60 font-bold">جاري التحميل...</p>
+          <p className="text-brand-brown/60 font-bold">{t(lang, 'projects.loading')}</p>
         </div>
       </div>
     );
@@ -95,10 +98,10 @@ export default function ProjectDetailsClient({ projectId }: { projectId: string 
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <p className="text-8xl mb-6">🔍</p>
-          <h1 className="text-4xl font-black text-brand-brown mb-4">المشروع غير موجود</h1>
-          <p className="text-foreground/60 mb-8">يبدو أن هذا المشروع لم يعد متاحاً أو تم حذفه.</p>
+          <h1 className="text-4xl font-black text-brand-brown mb-4">{t(lang, 'projects.not_found')}</h1>
+          <p className="text-foreground/60 mb-8">{t(lang, 'projects.not_found_desc')}</p>
           <Link href="/projects" className="inline-block px-8 py-3 bg-brand-brown text-brand-beige font-black rounded-full hover:scale-105 transition-transform">
-            ← العودة للمشاريع
+            {t(lang, 'projects.back')}
           </Link>
         </div>
       </div>
@@ -123,7 +126,7 @@ export default function ProjectDetailsClient({ projectId }: { projectId: string 
                 className="inline-flex items-center gap-2 text-brand-brown/60 hover:text-brand-brown font-bold mb-8 transition-colors text-sm"
               >
                 <ArrowRight size={16} />
-                العودة لكل المشاريع
+                {t(lang, 'projects.back_to_all')}
               </Link>
 
               {/* Category + Title */}
@@ -146,13 +149,13 @@ export default function ProjectDetailsClient({ projectId }: { projectId: string 
                     href="/packages"
                     className="inline-block mt-6 px-8 py-3 bg-brand-brown text-brand-beige font-black rounded-xl hover:scale-105 shadow-lg transition-transform"
                   >
-                    اطلب مشروعاً مشابهاً 🚀
+                    {t(lang, 'projects.request_similar')}
                   </Link>
                 </div>
                 {project.tags && project.tags.length > 0 && (
                   <div className="md:w-64 flex-shrink-0">
                     <h3 className="text-xs font-black text-foreground/40 uppercase tracking-widest mb-3">
-                      التقنيات المستخدمة
+                      {t(lang, 'projects.tech_used')}
                     </h3>
                     <div className="flex flex-wrap gap-2">
                       {project.tags.map(tag => (
@@ -188,14 +191,14 @@ export default function ProjectDetailsClient({ projectId }: { projectId: string 
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={img}
-                    alt={`${project.title} - صورة ${i + 1}`}
+                    alt={`${project.title} ${i + 1}`}
                     className="w-full h-auto object-contain"
                     loading={i === 0 ? 'eager' : 'lazy'}
                   />
                   {/* Zoom hint overlay */}
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-500 flex items-center justify-center">
                     <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/70 text-white px-4 py-2 rounded-full text-sm font-bold backdrop-blur-sm">
-                      🔍 اضغط للتكبير
+                      {t(lang, 'projects.click_to_zoom')}
                     </div>
                   </div>
                 </motion.div>
@@ -209,13 +212,13 @@ export default function ProjectDetailsClient({ projectId }: { projectId: string 
               viewport={{ once: true }}
               className="text-center mt-20 border-t border-border pt-16"
             >
-              <p className="text-2xl font-black text-foreground mb-2">أعجبك هذا العمل؟</p>
-              <p className="text-foreground/70 mb-8">تواصل معنا وابدأ مشروعك الخاص</p>
+              <p className="text-2xl font-black text-foreground mb-2">{t(lang, 'projects.like_this')}</p>
+              <p className="text-foreground/70 mb-8">{t(lang, 'projects.contact_cta')}</p>
               <Link
                 href="/packages"
                 className="inline-block px-12 py-4 bg-brand-gold text-brand-brown font-black text-lg rounded-full hover:scale-105 transition-transform shadow-2xl"
               >
-                شاهد باقاتنا
+                {t(lang, 'projects.view_packages')}
               </Link>
             </motion.div>
           </div>
@@ -224,7 +227,7 @@ export default function ProjectDetailsClient({ projectId }: { projectId: string 
         {allImages.length === 0 && (
           <div className="max-w-6xl mx-auto px-4 sm:px-6 pb-24 text-center py-24 text-foreground/50">
             <p className="text-6xl mb-4">🖼️</p>
-            <p className="text-xl font-bold">لا توجد صور لهذا المشروع.</p>
+            <p className="text-xl font-bold">{t(lang, 'projects.no_images')}</p>
           </div>
         )}
       </div>
@@ -279,7 +282,7 @@ export default function ProjectDetailsClient({ projectId }: { projectId: string 
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={allImages[currentIndex]}
-                alt={`${project.title} - عرض مكبر`}
+                alt={`${project.title}`}
                 className="max-w-full max-h-[88vh] object-contain rounded-lg shadow-2xl"
               />
             </motion.div>

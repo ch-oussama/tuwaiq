@@ -30,8 +30,9 @@ export default function GeminiWidget() {
   const toggleChat = () => {
     if (!isOpen && messages.length === 0) {
       if (user) {
+        const name = user.displayName?.split(' ')[0] || '';
         setMessages([
-          { role: 'model', parts: [{ text: `مرحباً ${user.displayName?.split(' ')[0] || ''}! أنا مستشار طويق الذكي. كيف يمكنني مساعدتك في مشروعك اليوم؟` }] }
+          { role: 'model', parts: [{ text: `${name ? name + '! ' : ''}مرحباً! أنا مستشار طويق الذكي. كيف يمكنني مساعدتك في مشروعك اليوم؟` }] }
         ]);
       }
     }
@@ -59,7 +60,7 @@ export default function GeminiWidget() {
       if (response.ok) {
         setMessages([...newMessages, { role: 'model', parts: [{ text: data.text }] }]);
       } else {
-        setMessages([...newMessages, { role: 'model', parts: [{ text: 'عذراً، حدث خطأ أثناء الاتصال. يرجى المحاولة لاحقاً أو التواصل معنا عبر الديسكورد.' }] }]);
+        setMessages([...newMessages, { role: 'model', parts: [{ text: 'عذراً، حدث خطأ أثناء الاتصال. يرجى المحاولة لاحقاً.' }] }]);
       }
     } catch (err) {
       setMessages([...newMessages, { role: 'model', parts: [{ text: 'عذراً، حدث خطأ أثناء الاتصال. يرجى المحاولة لاحقاً.' }] }]);

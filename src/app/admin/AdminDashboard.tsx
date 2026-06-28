@@ -1,15 +1,15 @@
 "use client";
 
-import { Package, Project } from '@/lib/db';
+import { Package, Project, TermsData, PrivacyData, TermsSection, CustomOption, Order } from '@/lib/db';
 import { logoutAction } from './actions';
-import { LogOut, Plus, Trash2, Star, PackageOpen, AlertTriangle, CheckCircle, Lightbulb, Edit2, X } from 'lucide-react';
+import { LogOut, Plus, Trash2, Star, PackageOpen, AlertTriangle, CheckCircle, Lightbulb, Edit2, X, FileText, Shield, ShoppingCart, ClipboardList, HelpCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-type Tab = 'packages' | 'reviews' | 'projects';
+type Tab = 'packages' | 'reviews' | 'projects' | 'terms' | 'privacy' | 'custom_options' | 'orders';
 
-export default function AdminDashboard({ initialPackages, initialProjects }: { initialPackages: Package[], initialProjects: Project[] }) {
+export default function AdminDashboard({ initialPackages, initialProjects, initialTerms, initialPrivacy, initialCustomOptions, initialOrders }: { initialPackages: Package[], initialProjects: Project[], initialTerms: TermsData, initialPrivacy: PrivacyData, initialCustomOptions: CustomOption[], initialOrders: Order[] }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
@@ -25,6 +25,27 @@ export default function AdminDashboard({ initialPackages, initialProjects }: { i
   const [projectLoading, setProjectLoading] = useState(false);
   const [editingPackage, setEditingPackage] = useState<Package | null>(null);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
+
+  // Terms state
+  const [termsData, setTermsData] = useState<TermsData>(initialTerms);
+  const [termsLoading, setTermsLoading] = useState(false);
+
+  // Privacy state
+  const [privacyData, setPrivacyData] = useState<PrivacyData>(initialPrivacy);
+  const [privacyLoading, setPrivacyLoading] = useState(false);
+
+  // Custom options state
+  const [customOptions, setCustomOptions] = useState<CustomOption[]>(initialCustomOptions);
+  const [optionName, setOptionName] = useState('');
+  const [optionPrice, setOptionPrice] = useState(0);
+  const [optionCategory, setOptionCategory] = useState('');
+  const [optionDesc, setOptionDesc] = useState('');
+  const [optionImage, setOptionImage] = useState('');
+  const [optionLoading, setOptionLoading] = useState(false);
+  const [editingOption, setEditingOption] = useState<CustomOption | null>(null);
+
+  // Orders state
+  const [orders, setOrders] = useState<Order[]>(initialOrders);
 
   const showNotif = (type: 'success' | 'error', msg: string) => {
     setNotification({ type, msg });
@@ -245,6 +266,178 @@ export default function AdminDashboard({ initialPackages, initialProjects }: { i
     setProjectLoading(false);
   }
 
+  async function handleSaveTerms() {
+    setTermsLoading(true);
+    try {
+      const res = await fetch('/api/terms', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(termsData),
+      });
+      if (res.ok) {
+        showNotif('success', 'تم حفظ الشروط والأحكام بنجاح ✓');
+      } else {
+        showNotif('error', 'فشل حفظ الشروط');
+      }
+    } catch {
+      showNotif('error', 'خطأ في الاتصال');
+    }
+    setTermsLoading(false);
+  }
+
+  function updateTermsSection(branch: 'designTerms' | 'studioTerms', index: number, field: 'title' | 'content', value: string) {
+    setTermsData(prev => {
+      const updated = { ...prev };
+      const sections = [...updated[branch]];
+      sections[index] = { ...sections[index], [field]: value };
+      updated[branch] = sections;
+      return updated;
+    });
+  }
+
+  function addTermsSection(branch: 'designTerms' | 'studioTerms') {
+    setTermsData(prev => {
+      const updated = { ...prev };
+      updated[branch] = [...updated[branch], { title: '', content: '' }];
+      return updated;
+    });
+  }
+
+  async function handleSavePrivacy() {
+    setPrivacyLoading(true);
+    try {
+      const res = await fetch('/api/privacy', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(privacyData),
+      });
+      if (res.ok) {
+        showNotif('success', 'تم حفظ سياسة الخصوصية بنجاح ✓');
+      } else {
+        showNotif('error', 'فشل حفظ سياسة الخصوصية');
+      }
+    } catch {
+      showNotif('error', 'خطأ في الاتصال');
+    }
+    setPrivacyLoading(false);
+  }
+
+  function updatePrivacySection(branch: 'designPrivacy' | 'studioPrivacy', index: number, field: 'title' | 'content', value: string) {
+    setPrivacyData(prev => {
+      const updated = { ...prev };
+      const sections = [...updated[branch]];
+      sections[index] = { ...sections[index], [field]: value };
+      updated[branch] = sections;
+      return updated;
+    });
+  }
+
+  function addPrivacySection(branch: 'designPrivacy' | 'studioPrivacy') {
+    setPrivacyData(prev => {
+      const updated = { ...prev };
+      updated[branch] = [...updated[branch], { title: '', content: '' }];
+      return updated;
+    });
+  }
+
+  async function handleAddOption(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setOptionLoading(true);
+    try {
+      const res = await fetch('/api/custom-options', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: optionName, price: optionPrice, category: optionCategory, description: optionDesc, imageUrl: optionImage || undefined }),
+      });
+      if (res.ok) {
+        showNotif('success', 'تمت إضافة الخيار بنجاح ✓');
+        setOptionName(''); setOptionPrice(0); setOptionCategory(''); setOptionDesc(''); setOptionImage('');
+        router.refresh();
+      } else {
+        showNotif('error', 'فشل إضافة الخيار');
+      }
+    } catch {
+      showNotif('error', 'خطأ في الاتصال');
+    }
+    setOptionLoading(false);
+  }
+
+  async function handleEditOption(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!editingOption) return;
+    setOptionLoading(true);
+    const formData = new FormData(e.currentTarget);
+    try {
+      const res = await fetch('/api/custom-options', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: editingOption.id,
+          name: formData.get('name'),
+          price: Number(formData.get('price')),
+          category: formData.get('category'),
+          description: formData.get('description'),
+          imageUrl: formData.get('imageUrl') || undefined,
+        }),
+      });
+      if (res.ok) {
+        showNotif('success', 'تم تعديل الخيار بنجاح ✓');
+        setEditingOption(null);
+        router.refresh();
+      } else {
+        showNotif('error', 'فشل تعديل الخيار');
+      }
+    } catch {
+      showNotif('error', 'خطأ في الاتصال');
+    }
+    setOptionLoading(false);
+  }
+
+  async function handleDeleteOption(id: string) {
+    if (!confirm('هل أنت متأكد من حذف هذا الخيار؟')) return;
+    try {
+      const res = await fetch('/api/custom-options', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      });
+      if (res.ok) {
+        showNotif('success', 'تم حذف الخيار بنجاح');
+        router.refresh();
+      }
+    } catch {}
+  }
+
+  async function handleUpdateOrderStatus(id: string, status: Order['status']) {
+    try {
+      const res = await fetch('/api/orders', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, status }),
+      });
+      if (res.ok) {
+        showNotif('success', 'تم تحديث حالة الطلب ✓');
+        router.refresh();
+      }
+    } catch {}
+  }
+
+  function removePrivacySection(branch: 'designPrivacy' | 'studioPrivacy', index: number) {
+    setPrivacyData(prev => {
+      const updated = { ...prev };
+      updated[branch] = updated[branch].filter((_, i) => i !== index);
+      return updated;
+    });
+  }
+
+  function removeTermsSection(branch: 'designTerms' | 'studioTerms', index: number) {
+    setTermsData(prev => {
+      const updated = { ...prev };
+      updated[branch] = updated[branch].filter((_, i) => i !== index);
+      return updated;
+    });
+  }
+
   async function handleDeleteProject(id: string) {
     if (!confirm('هل أنت متأكد من حذف هذا المشروع؟')) return;
     setDeleteLoading(id);
@@ -325,7 +518,7 @@ export default function AdminDashboard({ initialPackages, initialProjects }: { i
 
         {/* Tabs */}
         <div className="flex gap-2 mb-8 bg-surface border border-border rounded-2xl p-1.5 w-fit flex-wrap">
-          {([['packages', 'الباقات', PackageOpen], ['reviews', 'التقييمات', Star], ['projects', 'المشاريع', Lightbulb]] as const).map(([key, label, Icon]) => (
+          {([['packages', 'الباقات', PackageOpen], ['reviews', 'التقييمات', Star], ['projects', 'المشاريع', Lightbulb], ['terms', 'الشروط', FileText], ['privacy', 'الخصوصية', Shield], ['custom_options', 'خيارات التخصيص', ShoppingCart], ['orders', 'الطلبات', ClipboardList]] as const).map(([key, label, Icon]) => (
             <button
               key={key}
               onClick={() => setActiveTab(key)}
@@ -413,14 +606,23 @@ export default function AdminDashboard({ initialPackages, initialProjects }: { i
                         <p className="text-xs text-foreground/40 mt-0.5">{pkg.reviews?.length || 0} تقييم</p>
                       </div>
                     </div>
-                    <button
-                      onClick={() => handleDelete(pkg.id)}
-                      disabled={deleteLoading === pkg.id}
-                      className="text-red-400 hover:text-red-600 transition p-2 rounded-lg hover:bg-red-50 disabled:opacity-50"
-                      title="حذف الباقة"
-                    >
-                      <Trash2 size={20} />
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setEditingPackage(pkg)}
+                        className="text-brand-gold hover:text-brand-brown transition p-2 rounded-lg hover:bg-brand-gold/10 disabled:opacity-50"
+                        title="تعديل الباقة"
+                      >
+                        <Edit2 size={18} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(pkg.id)}
+                        disabled={deleteLoading === pkg.id}
+                        className="text-red-400 hover:text-red-600 transition p-2 rounded-lg hover:bg-red-50 disabled:opacity-50"
+                        title="حذف الباقة"
+                      >
+                        <Trash2 size={20} />
+                      </button>
+                    </div>
                   </div>
                 ))}
                 {initialPackages.length === 0 && (
@@ -433,6 +635,82 @@ export default function AdminDashboard({ initialPackages, initialProjects }: { i
             </div>
           </div>
         )}
+
+        {/* Edit Package Modal */}
+        <AnimatePresence>
+          {editingPackage && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+              onClick={() => setEditingPackage(null)}
+            >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                className="bg-surface border border-border rounded-3xl p-6 shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+                onClick={e => e.stopPropagation()}
+              >
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-black text-brand-brown dark:text-brand-nude flex items-center gap-2">
+                    <Edit2 className="text-brand-gold" size={20} /> تعديل الباقة
+                  </h2>
+                  <button onClick={() => setEditingPackage(null)} className="p-2 rounded-full hover:bg-surface-hover transition-colors">
+                    <X size={20} />
+                  </button>
+                </div>
+                <form onSubmit={handleEditPackage} className="space-y-3.5">
+                  {[
+                    { label: 'اسم الباقة', name: 'title', defaultValue: editingPackage.title, type: 'input' },
+                    { label: 'وصف مختصر', name: 'shortDescription', defaultValue: editingPackage.shortDescription, type: 'input' },
+                  ].map(f => (
+                    <div key={f.name}>
+                      <label className="block text-xs font-black mb-1 text-foreground/70 uppercase tracking-wide">{f.label}</label>
+                      <input name={f.name} defaultValue={f.defaultValue} required className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-gold transition-colors" />
+                    </div>
+                  ))}
+                  <div>
+                    <label className="block text-xs font-black mb-1 text-foreground/70 uppercase tracking-wide">الفرع (Branch)</label>
+                    <select name="branch" defaultValue={editingPackage.branch || 'studio'} required className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-gold transition-colors">
+                      <option value="studio">أستوديو طويق (Studio)</option>
+                      <option value="design">طويق للتصميم (Design)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-black mb-1 text-foreground/70 uppercase tracking-wide">الوصف الكامل</label>
+                    <textarea name="description" defaultValue={editingPackage.description} required rows={3} className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-gold transition-colors resize-none" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-black mb-1 text-foreground/70 uppercase tracking-wide">السعر ($)</label>
+                    <input name="price" type="number" min="1" defaultValue={editingPackage.price} required className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-gold transition-colors" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-black mb-1 text-foreground/70 uppercase tracking-wide">رابط الصورة الرئيسية</label>
+                    <input name="thumbnailUrl" defaultValue={editingPackage.thumbnailUrl} required dir="ltr" className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm text-left focus:outline-none focus:border-brand-gold transition-colors" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-black mb-1 text-foreground/70 uppercase tracking-wide">صور إضافية (روابط مفصولة بفاصلة)</label>
+                    <textarea name="images" defaultValue={editingPackage.images?.join(', ')} dir="ltr" rows={2} className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm text-left focus:outline-none focus:border-brand-gold transition-colors resize-none" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-black mb-1 text-foreground/70 uppercase tracking-wide">المميزات (كل ميزة في سطر)</label>
+                    <textarea name="features" defaultValue={editingPackage.features?.join('\n')} required rows={3} className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-gold transition-colors resize-none" />
+                  </div>
+                  <div className="flex gap-3 pt-2">
+                    <button type="submit" disabled={loading} className="flex-1 bg-brand-gold text-brand-brown font-black py-3 rounded-xl hover:brightness-105 transition disabled:opacity-50 shadow-md">
+                      {loading ? 'جاري الحفظ...' : 'حفظ التعديلات'}
+                    </button>
+                    <button type="button" onClick={() => setEditingPackage(null)} className="px-6 py-3 rounded-xl border border-border text-foreground font-bold hover:bg-surface-hover transition-colors">
+                      إلغاء
+                    </button>
+                  </div>
+                </form>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {activeTab === 'reviews' && (
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
@@ -497,7 +775,14 @@ export default function AdminDashboard({ initialPackages, initialProjects }: { i
               <div className="space-y-4">
                 {initialPackages.flatMap(pkg =>
                   (pkg.reviews || []).map(review => (
-                    <div key={review.id} className="bg-surface border border-border rounded-2xl p-5 shadow-sm">
+                    <div key={review.id} className="bg-surface border border-border rounded-2xl p-5 shadow-sm relative group">
+                      <button
+                        onClick={() => handleDeleteReview(pkg.id, review.id)}
+                        className="absolute top-3 left-3 p-2 bg-red-100 text-red-500 rounded-full opacity-0 group-hover:opacity-100 hover:bg-red-500 hover:text-white transition-all"
+                        title="حذف التقييم"
+                      >
+                        <Trash2 size={14} />
+                      </button>
                       <div className="flex items-center justify-between mb-3">
                         <div>
                           <p className="font-black text-brand-brown dark:text-brand-nude">{review.author}</p>
@@ -522,6 +807,132 @@ export default function AdminDashboard({ initialPackages, initialProjects }: { i
           </div>
         )}
         
+        {activeTab === 'terms' && (
+          <div className="space-y-8">
+            {(['designTerms', 'studioTerms'] as const).map(branch => {
+              const label = branch === 'designTerms' ? 'طويق للتصميم (Design)' : 'أستوديو طويق (Studio)';
+              const sections = termsData[branch];
+              return (
+                <div key={branch} className="bg-surface border border-border rounded-3xl p-6 shadow-xl">
+                  <h2 className="text-xl font-black mb-5 flex items-center gap-2 text-brand-brown dark:text-brand-nude">
+                    <FileText className="text-brand-gold" size={20} /> الشروط والأحكام - {label}
+                  </h2>
+                  <div className="space-y-4">
+                    {sections.map((section, index) => (
+                      <div key={index} className="relative border border-border rounded-2xl p-4 bg-background/50">
+                        <button
+                          onClick={() => removeTermsSection(branch, index)}
+                          className="absolute top-3 left-3 p-1.5 bg-red-100 text-red-500 rounded-full hover:bg-red-500 hover:text-white transition-colors"
+                          title="حذف البند"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                        <div className="space-y-3">
+                          <div>
+                            <label className="block text-xs font-black mb-1 text-foreground/70">عنوان البند</label>
+                            <input
+                              value={section.title}
+                              onChange={e => updateTermsSection(branch, index, 'title', e.target.value)}
+                              className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-gold transition-colors"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-black mb-1 text-foreground/70">نص البند</label>
+                            <textarea
+                              value={section.content}
+                              onChange={e => updateTermsSection(branch, index, 'content', e.target.value)}
+                              rows={3}
+                              className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-gold transition-colors resize-none"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    <button
+                      onClick={() => addTermsSection(branch)}
+                      className="flex items-center gap-2 px-4 py-2 rounded-xl border border-dashed border-border text-foreground/60 hover:text-brand-gold hover:border-brand-gold transition-colors text-sm font-bold"
+                    >
+                      <Plus size={16} /> إضافة بند جديد
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+            <div className="flex justify-center">
+              <button
+                onClick={handleSaveTerms}
+                disabled={termsLoading}
+                className="px-10 py-3.5 bg-brand-gold text-brand-brown font-black rounded-xl hover:brightness-105 transition disabled:opacity-50 shadow-md text-lg"
+              >
+                {termsLoading ? 'جاري الحفظ...' : 'حفظ جميع التغييرات'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'privacy' && (
+          <div className="space-y-8">
+            {(['designPrivacy', 'studioPrivacy'] as const).map(branch => {
+              const label = branch === 'designPrivacy' ? 'طويق للتصميم (Design)' : 'أستوديو طويق (Studio)';
+              const sections = privacyData[branch];
+              return (
+                <div key={branch} className="bg-surface border border-border rounded-3xl p-6 shadow-xl">
+                  <h2 className="text-xl font-black mb-5 flex items-center gap-2 text-brand-brown dark:text-brand-nude">
+                    <Shield className="text-brand-gold" size={20} /> سياسة الخصوصية - {label}
+                  </h2>
+                  <div className="space-y-4">
+                    {sections.map((section, index) => (
+                      <div key={index} className="relative border border-border rounded-2xl p-4 bg-background/50">
+                        <button
+                          onClick={() => removePrivacySection(branch, index)}
+                          className="absolute top-3 left-3 p-1.5 bg-red-100 text-red-500 rounded-full hover:bg-red-500 hover:text-white transition-colors"
+                          title="حذف البند"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                        <div className="space-y-3">
+                          <div>
+                            <label className="block text-xs font-black mb-1 text-foreground/70">عنوان البند</label>
+                            <input
+                              value={section.title}
+                              onChange={e => updatePrivacySection(branch, index, 'title', e.target.value)}
+                              className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-gold transition-colors"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-black mb-1 text-foreground/70">نص البند</label>
+                            <textarea
+                              value={section.content}
+                              onChange={e => updatePrivacySection(branch, index, 'content', e.target.value)}
+                              rows={3}
+                              className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-gold transition-colors resize-none"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    <button
+                      onClick={() => addPrivacySection(branch)}
+                      className="flex items-center gap-2 px-4 py-2 rounded-xl border border-dashed border-border text-foreground/60 hover:text-brand-gold hover:border-brand-gold transition-colors text-sm font-bold"
+                    >
+                      <Plus size={16} /> إضافة بند جديد
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+            <div className="flex justify-center">
+              <button
+                onClick={handleSavePrivacy}
+                disabled={privacyLoading}
+                className="px-10 py-3.5 bg-brand-gold text-brand-brown font-black rounded-xl hover:brightness-105 transition disabled:opacity-50 shadow-md text-lg"
+              >
+                {privacyLoading ? 'جاري الحفظ...' : 'حفظ جميع التغييرات'}
+              </button>
+            </div>
+          </div>
+        )}
+
         {activeTab === 'projects' && (
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
             <div className="lg:col-span-2 bg-surface border border-border rounded-3xl p-6 shadow-xl h-fit">
@@ -605,19 +1016,290 @@ export default function AdminDashboard({ initialPackages, initialProjects }: { i
                         <span className="bg-brand-gold/20 text-brand-gold px-2 py-0.5 rounded text-xs font-bold">{proj.branch === 'design' ? 'Design' : 'Studio'}</span>
                       </div>
                     </div>
-                    <button
-                      onClick={() => handleDeleteProject(proj.id)}
-                      disabled={deleteLoading === proj.id}
-                      className="p-3 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-colors disabled:opacity-50"
-                    >
-                      <Trash2 size={20} />
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setEditingProject(proj)}
+                        className="text-brand-gold hover:text-brand-brown transition p-2 rounded-lg hover:bg-brand-gold/10"
+                        title="تعديل المشروع"
+                      >
+                        <Edit2 size={18} />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteProject(proj.id)}
+                        disabled={deleteLoading === proj.id}
+                        className="p-3 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-colors disabled:opacity-50"
+                      >
+                        <Trash2 size={20} />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
           </div>
         )}
+
+        {/* Edit Project Modal */}
+        <AnimatePresence>
+          {editingProject && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+              onClick={() => setEditingProject(null)}
+            >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                className="bg-surface border border-border rounded-3xl p-6 shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+                onClick={e => e.stopPropagation()}
+              >
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-black text-brand-brown dark:text-brand-nude flex items-center gap-2">
+                    <Edit2 className="text-brand-gold" size={20} /> تعديل المشروع
+                  </h2>
+                  <button onClick={() => setEditingProject(null)} className="p-2 rounded-full hover:bg-surface-hover transition-colors">
+                    <X size={20} />
+                  </button>
+                </div>
+                <form onSubmit={handleEditProject} className="space-y-3.5">
+                  <div>
+                    <label className="block text-xs font-black mb-1 text-foreground/70 uppercase tracking-wide">اسم المشروع</label>
+                    <input name="title" defaultValue={editingProject.title} required className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-gold transition-colors" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-black mb-1 text-foreground/70 uppercase tracking-wide">التصنيف</label>
+                    <select name="category" defaultValue={editingProject.category} required className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-gold transition-colors">
+                      <option value="برمجة">برمجة</option>
+                      <option value="تصميم جرافيك">تصميم جرافيك</option>
+                      <option value="3D design">3D design</option>
+                      <option value="لوقو">لوقو</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-black mb-1 text-foreground/70 uppercase tracking-wide">الفرع (Branch)</label>
+                    <select name="branch" defaultValue={editingProject.branch || 'studio'} required className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-gold transition-colors">
+                      <option value="studio">أستوديو طويق (Studio)</option>
+                      <option value="design">طويق للتصميم (Design)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-black mb-1 text-foreground/70 uppercase tracking-wide">الوصف</label>
+                    <textarea name="description" defaultValue={editingProject.description} required rows={3} className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-gold transition-colors resize-none" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-black mb-1 text-foreground/70 uppercase tracking-wide">التقنيات (مفصولة بفاصلة)</label>
+                    <input name="tags" defaultValue={editingProject.tags?.join(', ')} required className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-gold transition-colors" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-black mb-1 text-foreground/70 uppercase tracking-wide">رابط الصورة الرئيسية</label>
+                    <input name="imageUrl" defaultValue={editingProject.imageUrl} dir="ltr" className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm text-left focus:outline-none focus:border-brand-gold transition-colors" />
+                  </div>
+                  <div className="flex gap-3 pt-2">
+                    <button type="submit" disabled={projectLoading} className="flex-1 bg-brand-gold text-brand-brown font-black py-3 rounded-xl hover:brightness-105 transition disabled:opacity-50 shadow-md">
+                      {projectLoading ? 'جاري الحفظ...' : 'حفظ التعديلات'}
+                    </button>
+                    <button type="button" onClick={() => setEditingProject(null)} className="px-6 py-3 rounded-xl border border-border text-foreground font-bold hover:bg-surface-hover transition-colors">
+                      إلغاء
+                    </button>
+                  </div>
+                </form>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {activeTab === 'custom_options' && (
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+            <div className="lg:col-span-2 bg-surface border border-border rounded-3xl p-6 shadow-xl h-fit">
+              <h2 className="text-xl font-black mb-5 flex items-center gap-2 text-brand-brown dark:text-brand-nude">
+                <Plus className="text-brand-gold" size={20} /> إضافة خيار تخصيص
+              </h2>
+              <form onSubmit={handleAddOption} className="space-y-3.5">
+                <div>
+                  <label className="block text-xs font-black mb-1 text-foreground/70">اسم الخيار</label>
+                  <input value={optionName} onChange={e => setOptionName(e.target.value)} required className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-gold transition-colors" />
+                </div>
+                <div>
+                  <label className="block text-xs font-black mb-1 text-foreground/70">السعر ($)</label>
+                  <input value={optionPrice} onChange={e => setOptionPrice(Number(e.target.value))} type="number" min="0" required className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-gold transition-colors" />
+                </div>
+                <div>
+                  <label className="block text-xs font-black mb-1 text-foreground/70">التصنيف</label>
+                  <input value={optionCategory} onChange={e => setOptionCategory(e.target.value)} required placeholder="مثال: لوقو, صورة متحركة, تصميم" className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-gold transition-colors" />
+                </div>
+                <div>
+                  <label className="block text-xs font-black mb-1 text-foreground/70">الوصف</label>
+                  <textarea value={optionDesc} onChange={e => setOptionDesc(e.target.value)} required rows={2} className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-gold transition-colors resize-none" />
+                </div>
+                <div>
+                  <label className="block text-xs font-black mb-1 text-foreground/70">رابط صورة (اختياري)</label>
+                  <input value={optionImage} onChange={e => setOptionImage(e.target.value)} dir="ltr" className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm text-left focus:outline-none focus:border-brand-gold transition-colors" />
+                </div>
+                <button type="submit" disabled={optionLoading} className="w-full bg-brand-gold text-brand-brown font-black py-3 rounded-xl hover:brightness-105 transition disabled:opacity-50 shadow-md">
+                  {optionLoading ? 'جاري الحفظ...' : 'إضافة الخيار'}
+                </button>
+              </form>
+            </div>
+            <div className="lg:col-span-3">
+              <h2 className="text-xl font-black mb-5">خيارات التخصيص ({customOptions.length})</h2>
+              <div className="space-y-3">
+                {customOptions.map(opt => (
+                  <div key={opt.id} className="bg-surface border border-border rounded-2xl p-4 flex items-center justify-between shadow-sm">
+                    <div className="flex items-center gap-4">
+                      {opt.imageUrl && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={opt.imageUrl} alt="" className="w-14 h-14 rounded-xl object-cover" />
+                      )}
+                      <div>
+                        <h3 className="font-black text-sm text-foreground">{opt.name}</h3>
+                        <p className="text-xs text-foreground/50">{opt.category} · ${opt.price}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <button onClick={() => setEditingOption(opt)} className="text-brand-gold hover:text-brand-brown transition p-2 rounded-lg hover:bg-brand-gold/10" title="تعديل">
+                        <Edit2 size={16} />
+                      </button>
+                      <button onClick={() => handleDeleteOption(opt.id)} className="text-red-400 hover:text-red-600 transition p-2 rounded-lg hover:bg-red-50" title="حذف">
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                {customOptions.length === 0 && (
+                  <div className="text-center py-16 text-foreground/60 bg-surface rounded-2xl border border-border">
+                    <ShoppingCart size={40} className="mx-auto mb-4 opacity-30" />
+                    <p className="font-bold">لا توجد خيارات تخصيص مضافة بعد.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Edit Option Modal */}
+        <AnimatePresence>
+          {editingOption && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+              onClick={() => setEditingOption(null)}
+            >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                className="bg-surface border border-border rounded-3xl p-6 shadow-2xl w-full max-w-lg"
+                onClick={e => e.stopPropagation()}
+              >
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-black text-brand-brown dark:text-brand-nude flex items-center gap-2">
+                    <Edit2 className="text-brand-gold" size={20} /> تعديل الخيار
+                  </h2>
+                  <button onClick={() => setEditingOption(null)} className="p-2 rounded-full hover:bg-surface-hover transition-colors">
+                    <X size={20} />
+                  </button>
+                </div>
+                <form onSubmit={handleEditOption} className="space-y-3.5">
+                  <div>
+                    <label className="block text-xs font-black mb-1 text-foreground/70">اسم الخيار</label>
+                    <input name="name" defaultValue={editingOption.name} required className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-gold transition-colors" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-black mb-1 text-foreground/70">السعر ($)</label>
+                    <input name="price" type="number" min="0" defaultValue={editingOption.price} required className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-gold transition-colors" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-black mb-1 text-foreground/70">التصنيف</label>
+                    <input name="category" defaultValue={editingOption.category} required className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-gold transition-colors" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-black mb-1 text-foreground/70">الوصف</label>
+                    <textarea name="description" defaultValue={editingOption.description} required rows={2} className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-gold transition-colors resize-none" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-black mb-1 text-foreground/70">رابط صورة (اختياري)</label>
+                    <input name="imageUrl" defaultValue={editingOption.imageUrl || ''} dir="ltr" className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm text-left focus:outline-none focus:border-brand-gold transition-colors" />
+                  </div>
+                  <div className="flex gap-3 pt-2">
+                    <button type="submit" disabled={optionLoading} className="flex-1 bg-brand-gold text-brand-brown font-black py-3 rounded-xl hover:brightness-105 transition disabled:opacity-50 shadow-md">
+                      {optionLoading ? 'جاري الحفظ...' : 'حفظ التعديلات'}
+                    </button>
+                    <button type="button" onClick={() => setEditingOption(null)} className="px-6 py-3 rounded-xl border border-border text-foreground font-bold hover:bg-surface-hover transition-colors">
+                      إلغاء
+                    </button>
+                  </div>
+                </form>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {activeTab === 'orders' && (
+          <div className="space-y-4">
+            <h2 className="text-xl font-black mb-5">الطلبات ({orders.length})</h2>
+            {orders.length === 0 && (
+              <div className="text-center py-16 text-foreground/60 bg-surface rounded-2xl border border-border">
+                <ClipboardList size={40} className="mx-auto mb-4 opacity-30" />
+                <p className="font-bold">لا توجد طلبات بعد.</p>
+              </div>
+            )}
+            <div className="space-y-4">
+              {[...orders].sort((a, b) => b.createdAt - a.createdAt).map(order => (
+                <div key={order.id} className="bg-surface border border-border rounded-2xl p-6 shadow-sm">
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <div className="flex items-center gap-3 mb-2">
+                        <span className="text-2xl font-black text-brand-gold tracking-widest">{order.code}</span>
+                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                          order.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                          order.status === 'confirmed' ? 'bg-blue-100 text-blue-700' :
+                          'bg-green-100 text-green-700'
+                        }`}>
+                          {order.status === 'pending' ? 'قيد الانتظار' : order.status === 'confirmed' ? 'مؤكد' : 'مكتمل'}
+                        </span>
+                      </div>
+                      <p className="text-sm text-foreground/60">{order.fullName} · {order.discordUsername}</p>
+                      <p className="text-xs text-foreground/40">{order.email} · {order.phone}</p>
+                    </div>
+                    <span className="text-xl font-black text-brand-gold">${order.total}</span>
+                  </div>
+                  <div className="bg-background/50 rounded-xl p-4 mb-4">
+                    <p className="text-xs font-bold text-foreground/50 mb-2">المكونات:</p>
+                    <div className="space-y-1">
+                      {order.items.map((item, i) => (
+                        <div key={i} className="flex justify-between text-sm text-foreground/70">
+                          <span>{item.optionName}</span>
+                          <span>${item.price}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    {order.status === 'pending' && (
+                      <button onClick={() => handleUpdateOrderStatus(order.id, 'confirmed')} className="px-4 py-2 bg-blue-500 text-white rounded-xl font-bold text-sm hover:bg-blue-600 transition-colors">
+                        تأكيد الطلب
+                      </button>
+                    )}
+                    {order.status === 'confirmed' && (
+                      <button onClick={() => handleUpdateOrderStatus(order.id, 'completed')} className="px-4 py-2 bg-green-500 text-white rounded-xl font-bold text-sm hover:bg-green-600 transition-colors">
+                        إكمال الطلب
+                      </button>
+                    )}
+                    <span className="text-xs text-foreground/30 self-center mr-auto">
+                      {new Date(order.createdAt).toLocaleString('ar-SA')}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   );

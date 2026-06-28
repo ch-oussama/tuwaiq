@@ -47,7 +47,7 @@ const DESIGN_SKILLS = [
 ];
 
 const RADIUS = 200;
-const MAX_LINE_DIST = RADIUS * 1.1; // connect most pairs
+const MAX_LINE_DIST = RADIUS * 1.1;
 
 interface Tag {
   text: string;
@@ -98,7 +98,6 @@ export default function DesignGlobe() {
     tagsRef.current = initTags(currentSkills);
   }, [branch]);
 
-
   const handleMouseMove = useCallback((e: MouseEvent) => {
     const rect = containerRef.current?.getBoundingClientRect();
     if (!rect) return;
@@ -127,8 +126,7 @@ export default function DesignGlobe() {
     canvas.height = SIZE;
     const ctx = canvas.getContext("2d")!;
 
-    // Pre-create label spans
-    const spans: HTMLSpanElement[] = currentSkills.map((skill, i) => {
+    const spans: HTMLSpanElement[] = currentSkills.map((skill) => {
       const span = document.createElement("span");
       span.textContent = skill.text;
       span.style.cssText = `
@@ -161,18 +159,15 @@ export default function DesignGlobe() {
       t = rotateX(t, (-my * 2.2) * dt);
       tagsRef.current = t;
 
-      // Compute projection info for each tag
       const projected = t.map(tag => {
-        const scale = (RADIUS + tag.z) / (2 * RADIUS); // 0..1 (front to back flipped: 0=back, 1=front)
+        const scale = (RADIUS + tag.z) / (2 * RADIUS);
         const alpha = 0.18 + scale * 0.82;
         const fontSize = 12 + (tag.weight / 9) * 8 + scale * 6;
         return { tag, px: tag.x, py: tag.y, pz: tag.z, alpha, fontSize, scale };
       });
 
-      // Sort by Z (paint far tags first = behind)
       const sorted = [...projected].sort((a, b) => a.pz - b.pz);
 
-      // ── 1. Canvas: draw connection lines ──
       ctx.clearRect(0, 0, SIZE, SIZE);
 
       for (let i = 0; i < projected.length; i++) {
@@ -185,17 +180,14 @@ export default function DesignGlobe() {
             const depthAlpha = (Math.min(a.alpha, b.alpha) - 0.18) / 0.82;
             const lineAlpha = proximity * 0.5 + depthAlpha * 0.2;
 
-            // Start and end on canvas
             const ax = CX + a.px, ay = CY + a.py;
             const bx = CX + b.px, by = CY + b.py;
 
-            // Control point: midpoint pushed outward from globe center
             const midX = (ax + bx) / 2;
             const midY = (ay + by) / 2;
             const dx = midX - CX;
             const dy = midY - CY;
             const len = Math.sqrt(dx * dx + dy * dy) || 1;
-            // Bow factor: push outward proportional to arc length, but never outside the globe
             const bow = 1.35;
             const targetDist = len * bow;
             const maxDist = RADIUS * 0.96;
@@ -213,8 +205,7 @@ export default function DesignGlobe() {
         }
       }
 
-      // ── 2. DOM: update label positions ──
-      sorted.forEach(({ tag, px, py, alpha, fontSize }, sortedIdx) => {
+      sorted.forEach(({ tag, px, py, alpha, fontSize }) => {
         const origIdx = projected.findIndex(p => p.tag === tag);
         const span = spans[origIdx];
         span.style.transform = `translate(calc(-50% + ${px}px), calc(-50% + ${py}px))`;
@@ -232,13 +223,11 @@ export default function DesignGlobe() {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       spans.forEach(s => s.remove());
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [branch]);
 
   return (
     <section className="relative py-24 px-6 z-20 overflow-hidden">
       <div className="max-w-5xl mx-auto">
-        {/* Title */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -257,18 +246,15 @@ export default function DesignGlobe() {
           </p>
         </motion.div>
 
-        {/* Globe Container */}
         <div
           ref={containerRef}
           className="relative mx-auto"
           style={{ width: 520, height: 520, maxWidth: "100%" }}
         >
-          {/* Ambient glow */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div className={`w-72 h-72 rounded-full ${branch === 'studio' ? 'bg-[#D4AF37]/10' : 'bg-[#5c1a16]/6'} blur-3xl`} />
           </div>
 
-          {/* Faint outer ring */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div
               className={`rounded-full border ${branch === 'studio' ? 'border-[#D4AF37]/20' : 'border-[#5c1a16]/12'}`}
@@ -276,21 +262,18 @@ export default function DesignGlobe() {
             />
           </div>
 
-          {/* Canvas for lines (behind labels) */}
           <canvas
             ref={canvasRef}
             className="absolute inset-0 pointer-events-none"
             style={{ width: "100%", height: "100%" }}
           />
 
-          {/* Labels container */}
           <div
             ref={labelsRef}
             className="absolute inset-0"
             style={{ fontFamily: "inherit" }}
           />
 
-          {/* Center glowing dot */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-50">
             <div className={`w-3 h-3 rounded-full ${branch === 'studio' ? 'bg-[#D4AF37] shadow-[0_0_14px_6px_rgba(212,175,55,0.4)]' : 'bg-[#5c1a16] shadow-[0_0_14px_6px_rgba(92,26,22,0.55)]'}`} />
           </div>

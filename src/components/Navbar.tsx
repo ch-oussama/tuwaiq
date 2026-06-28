@@ -7,14 +7,22 @@ import { motion, AnimatePresence, useScroll, useMotionValueEvent } from 'framer-
 import { Menu, X, LogOut, User, Building, Paintbrush } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 import { useBranch } from '@/lib/BranchContext';
+import { useLang } from '@/lib/LanguageContext';
+import { t } from '@/lib/translations';
 import { auth } from '@/lib/firebase';
 
 export default function Navbar() {
   const { branch, setBranch } = useBranch();
+  const { lang } = useLang();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeId, setActiveId] = useState("");
   const pathname = usePathname();
+
+  useEffect(() => {
+    document.documentElement.dir = 'rtl';
+    document.documentElement.lang = 'ar';
+  }, []);
 
   useEffect(() => {
     setActiveId(window.location.hash);
@@ -37,12 +45,13 @@ export default function Navbar() {
   const { user, isAdmin } = useAuth();
 
   const navLinks = [
-    { name: 'الرئيسية', path: '/' },
-    { name: 'من نحن', path: '/#about' },
-    { name: 'مشاريعنا', path: '/projects' },
-    { name: 'باقاتنا', path: '/packages' },
-    { name: 'آراء', path: '/#reviews' },
-    ...(isAdmin ? [{ name: 'لوحة الإدارة', path: '/admin' }] : []),
+    { name: t(lang, 'nav.home'), path: '/' },
+    { name: t(lang, 'nav.projects'), path: '/projects' },
+    { name: t(lang, 'nav.packages'), path: '/packages' },
+    { name: t(lang, 'nav.about'), path: '/#about' },
+    { name: t(lang, 'nav.faq'), path: '/faq' },
+    { name: t(lang, 'nav.contact'), path: '/contact' },
+    ...(isAdmin ? [{ name: t(lang, 'nav.admin'), path: '/admin' }] : []),
   ];
 
   const { scrollY } = useScroll();
@@ -61,7 +70,7 @@ export default function Navbar() {
       className="fixed top-0 w-full z-50 transition-all duration-400"
       style={{
         background: isScrolled ? 'var(--nav-bg)' : 'transparent',
-        backdropFilter: isScrolled ? 'blur(20px)' : 'none',
+        backdropFilter: isScrolled ? 'blur(30px) saturate(1.3)' : 'none',
         borderBottom: isScrolled ? '1px solid var(--border)' : 'none',
         boxShadow: isScrolled ? '0 2px 30px rgba(0,0,0,0.05)' : 'none',
       }}
@@ -117,15 +126,15 @@ export default function Navbar() {
             })}
           </div>
 
-          {/* ── LEFT: Login / Logout & Theme Toggle & Branch Switch ── */}
+          {/* ── LEFT: Branch / Auth ── */}
           <div className="hidden md:flex items-center gap-4 flex-shrink-0 me-auto md:me-0">
             <button
               onClick={() => setBranch(null)}
-              title="تغيير الفرع"
+              title={t(lang, 'nav.branch_switch')}
               className="px-4 py-2 rounded-full font-black text-sm transition-all hover:scale-105 border-2 text-foreground border-border hover:bg-surface flex items-center gap-2"
             >
               {branch === 'design' ? <Paintbrush size={16} /> : <Building size={16} />}
-              الفرع
+              {t(lang, 'nav.branch')}
             </button>
             
             {user ? (
@@ -138,12 +147,12 @@ export default function Navbar() {
                     <User size={16} className="text-foreground" />
                   )}
                   <span className="text-sm font-bold truncate max-w-[100px] text-foreground">
-                    {user.displayName?.split(' ')[0] || 'مرحباً'}
+                    {user.displayName?.split(' ')[0] || t(lang, 'nav.login')}
                   </span>
                 </div>
                 <button
                   onClick={() => { auth.signOut(); document.cookie = 'admin_auth=; path=/; max-age=0'; }}
-                  title="تسجيل الخروج"
+                  title={t(lang, 'nav.logout')}
                   className="p-2.5 rounded-full border border-border transition-all hover:scale-105 text-foreground hover:bg-foreground hover:text-background"
                 >
                   <LogOut size={18} />
@@ -154,7 +163,7 @@ export default function Navbar() {
                 href="/login"
                 className="px-6 py-2.5 rounded-full font-black text-sm transition-all hover:scale-105 bg-brand-beige text-brand-brown border-2 border-brand-nude-dark hover:bg-brand-brown hover:text-brand-beige hover:border-brand-brown"
               >
-                دخول
+                {t(lang, 'nav.login')}
               </Link>
             )}
           </div>
@@ -204,7 +213,7 @@ export default function Navbar() {
                   className="w-full mt-4 flex items-center justify-center gap-2 px-3 py-3 rounded-xl font-black text-base border-2 text-brand-brown border-brand-brown"
                 >
                   <LogOut size={18} />
-                  تسجيل الخروج
+                  {t(lang, 'nav.logout')}
                 </button>
               ) : (
                 <Link
@@ -212,7 +221,7 @@ export default function Navbar() {
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="block mt-4 px-3 py-3 text-center rounded-xl font-black text-base bg-brand-brown text-brand-beige"
                 >
-                  دخول
+                  {t(lang, 'nav.login')}
                 </Link>
               )}
             </div>

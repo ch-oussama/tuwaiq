@@ -32,8 +32,148 @@ export interface Project {
   branch?: 'studio' | 'design';
 }
 
+export interface TermsSection {
+  title: string;
+  content: string;
+}
+
+export interface TermsData {
+  studioTerms: TermsSection[];
+  designTerms: TermsSection[];
+}
+
+export interface PrivacyData {
+  studioPrivacy: TermsSection[];
+  designPrivacy: TermsSection[];
+}
+
+export interface CustomOption {
+  id: string;
+  name: string;
+  price: number;
+  category: string;
+  description: string;
+  imageUrl?: string;
+}
+
+export interface OrderItem {
+  optionId: string;
+  optionName: string;
+  price: number;
+}
+
+export interface Order {
+  id: string;
+  code: string;
+  items: OrderItem[];
+  total: number;
+  discordUsername: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  status: 'pending' | 'confirmed' | 'completed';
+  createdAt: number;
+  branch?: 'studio' | 'design';
+}
+
 const packagesCollection = collection(db, 'packages');
 const projectsCollection = collection(db, 'projects');
+const customOptionsCollection = collection(db, 'customOptions');
+const ordersCollection = collection(db, 'orders');
+
+const termsDoc = doc(db, 'content', 'terms');
+const privacyDoc = doc(db, 'content', 'privacy');
+
+export async function getTerms(): Promise<TermsData | null> {
+  try {
+    const snapshot = await getDoc(termsDoc);
+    if (snapshot.exists()) {
+      return snapshot.data() as TermsData;
+    }
+    return null;
+  } catch (error) {
+    console.error('Error fetching terms:', error);
+    return null;
+  }
+}
+
+export async function updateTerms(data: TermsData): Promise<void> {
+  await setDoc(termsDoc, data);
+}
+
+export async function getPrivacy(): Promise<PrivacyData | null> {
+  try {
+    const snapshot = await getDoc(privacyDoc);
+    if (snapshot.exists()) {
+      return snapshot.data() as PrivacyData;
+    }
+    return null;
+  } catch (error) {
+    console.error('Error fetching privacy:', error);
+    return null;
+  }
+}
+
+export async function updatePrivacy(data: PrivacyData): Promise<void> {
+  await setDoc(privacyDoc, data);
+}
+
+export async function getCustomOptions(): Promise<CustomOption[]> {
+  try {
+    const snapshot = await getDocs(customOptionsCollection);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as CustomOption));
+  } catch (error) {
+    console.error('Error fetching custom options:', error);
+    return [];
+  }
+}
+
+export async function addCustomOption(option: Omit<CustomOption, 'id'>): Promise<CustomOption> {
+  const newRef = doc(customOptionsCollection);
+  await setDoc(newRef, option);
+  return { id: newRef.id, ...option } as CustomOption;
+}
+
+export async function deleteCustomOption(id: string): Promise<boolean> {
+  try {
+    await deleteDoc(doc(db, 'customOptions', id));
+    return true;
+  } catch (error) {
+    console.error('Error deleting custom option:', error);
+    return false;
+  }
+}
+
+export async function updateCustomOption(id: string, data: Partial<CustomOption>): Promise<boolean> {
+  try {
+    await updateDoc(doc(db, 'customOptions', id), data);
+    return true;
+  } catch (error) {
+    console.error('Error updating custom option:', error);
+    return false;
+  }
+}
+
+export async function addOrder(order: Omit<Order, 'id'>): Promise<Order> {
+  const newRef = doc(ordersCollection);
+  await setDoc(newRef, order);
+  return { id: newRef.id, ...order } as Order;
+}
+
+export async function getOrders(): Promise<Order[]> {
+  try {
+    const snapshot = await getDocs(ordersCollection);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Order));
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    return [];
+  }
+}
+
+export async function updateOrderStatus(id: string, status: Order['status']): Promise<void> {
+  const docRef = doc(db, 'orders', id);
+  await updateDoc(docRef, { status });
+}
 
 export async function getPackages(): Promise<Package[]> {
   try {

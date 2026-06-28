@@ -3,11 +3,12 @@ import { Tajawal } from "next/font/google";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import GeminiWidget from "@/components/GeminiWidget";
-import FilmstripCamera from "@/components/FilmstripCamera";
-import LenisProvider from "@/components/LenisProvider";
-import AbstractScene from "@/components/AbstractScene";
+import ScrollProgress from "@/components/ScrollProgress";
+
 import { AuthProvider } from "@/lib/AuthContext";
+import { LenisProvider } from "@/lib/ScrollContext";
 import { BranchProvider } from "@/lib/BranchContext";
+import { LanguageProvider } from "@/lib/LanguageContext";
 import ClientAppWrapper from "@/components/ClientAppWrapper";
 import "./globals.css";
 
@@ -40,20 +41,23 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="flex flex-col min-h-screen text-foreground bg-transparent font-sans">
-          <LenisProvider>
-            <AuthProvider>
-              <BranchProvider>
-                <ClientAppWrapper>
+        <ScrollProgress />
+        <LanguageProvider>
+          <AuthProvider>
+            <BranchProvider>
+              <ClientAppWrapper>
+                <LenisProvider>
                   <Navbar />
                   <main className="flex-grow pt-20 relative z-10">
                     {children}
                   </main>
                   <Footer />
-                </ClientAppWrapper>
-                <GeminiWidget />
-              </BranchProvider>
-            </AuthProvider>
-          </LenisProvider>
+                </LenisProvider>
+              </ClientAppWrapper>
+              <GeminiWidget />
+            </BranchProvider>
+          </AuthProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

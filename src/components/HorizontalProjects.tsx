@@ -6,9 +6,12 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Project } from "@/lib/db";
 import { useBranch } from "@/lib/BranchContext";
+import { useLang } from "@/lib/LanguageContext";
+import { t } from "@/lib/translations";
 
 export default function HorizontalProjects({ projects }: { projects: Project[] }) {
   const { branch } = useBranch();
+  const { lang } = useLang();
   const displayProjects = projects.slice(0, 4);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -60,8 +63,8 @@ export default function HorizontalProjects({ projects }: { projects: Project[] }
           style={{ opacity: opacityTransform }}
           className="absolute top-6 md:top-12 left-0 right-0 text-center px-6 pointer-events-none z-50"
         >
-          <h2 className={`text-4xl md:text-5xl font-black ${branch === 'studio' ? 'text-[#111]' : 'text-[#2d1a12]'}`}>أعمالنا</h2>
-          <p className={`mt-3 text-lg ${branch === 'studio' ? 'text-[#333]/70' : 'text-[#4a3530]/70'}`}>لمحة من إبداعاتنا الفاخرة</p>
+          <h2 className={`text-4xl md:text-5xl font-black ${branch === 'studio' ? 'text-[#111]' : 'text-[#2d1a12]'}`}>{t(lang, 'projects.horizontal_title')}</h2>
+          <p className={`mt-3 text-lg ${branch === 'studio' ? 'text-[#333]/70' : 'text-[#4a3530]/70'}`}>{t(lang, 'projects.horizontal_subtitle')}</p>
         </motion.div>
 
         {/* The Horizontal Track */}
@@ -127,7 +130,7 @@ export default function HorizontalProjects({ projects }: { projects: Project[] }
                     <div className={`text-sm font-bold tracking-widest uppercase mb-2 ${
                       branch === 'studio' ? 'text-[#D4AF37]' : 'text-[#f5ecd8]/60'
                     }`}>
-                      {project.category || (branch === 'studio' ? 'برمجة' : 'هوية بصرية')}
+                      {project.category || (branch === 'studio' ? t(lang, 'projects.coding') : t(lang, 'globe.branding'))}
                     </div>
                     <h3 className="text-3xl md:text-5xl font-black mb-6 leading-tight">
                       {project.title}
@@ -151,7 +154,7 @@ export default function HorizontalProjects({ projects }: { projects: Project[] }
                           ? 'bg-[#D4AF37] text-black hover:bg-[#c9a334]' 
                           : 'bg-[#f5ecd8] text-[#5c1a16]'
                       }`}>
-                        استعراض المشروع <ArrowLeft size={18} />
+                        {t(lang, 'projects.view_project')} <ArrowLeft size={18} />
                       </button>
                     </Link>
                   </motion.div>

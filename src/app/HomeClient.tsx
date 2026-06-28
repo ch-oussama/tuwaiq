@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, useScroll, useTransform } from 'framer-motion';
+import CountUp from 'react-countup';
 import Link from 'next/link';
 import { Package, Project } from '@/lib/db';
 import { DUMMY_PACKAGES, DUMMY_REVIEWS, PROJECTS as DUMMY_PROJECTS } from '@/lib/dummyData';
@@ -61,6 +62,7 @@ export default function HomeClient({ packages, projects }: { packages: Package[]
   const heroOpacity = useTransform(scrollYProgress, [0, 0.12], [1, 0]);
   const heroY = useTransform(scrollYProgress, [0, 0.12], ["0vh", "-10vh"]);
   const heroDisplay = useTransform(scrollYProgress, (v) => v > 0.14 ? 'none' : 'flex') as any;
+
 
   // 2. Logo Transforms
   const logoX = useTransform(scrollYProgress, (v) => {
@@ -139,16 +141,23 @@ export default function HomeClient({ packages, projects }: { packages: Package[]
 
   return (
     <div
-      className="flex flex-col w-full min-h-screen relative overflow-clip"
-      style={{
-        backgroundImage: "url('/bg studio.png')",
-        backgroundSize: 'cover',
-        backgroundPosition: 'center top',
-        backgroundAttachment: 'fixed',
-      }}
+      className="flex flex-col w-full min-h-screen relative overflow-clip bg-noise"
     >
-      {/* Overlay */}
-      <div className="fixed inset-0 bg-black/65 pointer-events-none z-0" />
+      {/* Fixed Background */}
+      <div
+        className="fixed inset-0 bg-cover bg-center -z-10"
+        aria-hidden
+      >
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: "url('/bg studio.png')" }}
+        />
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-black/65 pointer-events-none" />
+      </div>
+
+      {/* Ambient glow */}
+      <div className="fixed top-[-30%] left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full bg-[#D4AF37]/10 blur-[120px] pointer-events-none -z-[5]" />
 
       {/* Dynamic Scroll Indicator */}
       <motion.div 
@@ -188,23 +197,23 @@ export default function HomeClient({ packages, projects }: { packages: Package[]
             className="absolute left-[8%] lg:left-[15%] top-1/2 -translate-y-1/2 flex flex-col items-center lg:items-start text-center lg:text-right max-w-[95vw] lg:max-w-4xl px-6 z-10"
           >
             <h2 className="text-xs font-black text-[#D4AF37] tracking-[0.3em] uppercase mb-4 w-full">من نحن</h2>
-            <h3 className="text-4xl md:text-5xl lg:text-[54px] font-black text-white leading-[1.3] mb-6 lg:whitespace-nowrap">
+            <h3 className="text-4xl md:text-5xl lg:text-[54px] font-black text-white leading-[1.3] mb-6 lg:whitespace-nowrap white-glow">
               لسنا مجرد مصورين،
               <br className="hidden md:block"/>
               نحن
               <br className="hidden md:block"/>
               <span className="italic text-[#D4AF37]">مهندسو أحلامك الرقمية.</span>
             </h3>
-            <p className="text-lg text-white/70 leading-relaxed mb-8 max-w-2xl">
+            <p className="text-lg text-white/70 leading-relaxed mb-8 max-w-2xl drop-cap">
               في أستوديو طويق، نؤمن أن الإبداع الحقيقي يكتمل بالقوة التصوير والهندسة الصوتية. ندمج بين الجماليات الفاخرة وأحدث التقنيات لتقديم شيء تسطر قصة نجاحك وتلبي طموحاتك.
             </p>
             <div className="flex gap-10 pt-4 border-t border-[#D4AF37]/30">
               <div>
-                <h4 className="text-4xl font-black text-white">+50</h4>
+                <h4 className="text-4xl font-black text-white"><CountUp end={50} suffix="+" /></h4>
                 <p className="text-sm font-bold text-white/50 mt-1">مشروع منجز</p>
               </div>
               <div>
-                <h4 className="text-4xl font-black text-white">Premium</h4>
+                <h4 className="text-4xl font-black text-white gradient-gold">Premium</h4>
                 <p className="text-sm font-bold text-white/50 mt-1">جودة لا تُضاهى</p>
               </div>
             </div>
@@ -214,11 +223,12 @@ export default function HomeClient({ packages, projects }: { packages: Package[]
           <motion.div 
             style={{ x: logoX, y: logoY, scale: logoScale, filter: logoFilter }}
             className="absolute top-[43%] -translate-y-1/2 flex items-center justify-center z-20 pointer-events-none"
-          >
+          >   
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/logo studio.webp"
               alt="أستوديو طويق"
+              fetchPriority="high"
               className="h-40 sm:h-48 md:h-[14rem] lg:h-[18rem] object-contain relative z-10"
             />
           </motion.div>
@@ -234,7 +244,7 @@ export default function HomeClient({ packages, projects }: { packages: Package[]
             </p>
 
             {/* Main Headline */}
-            <h1 className="text-3xl sm:text-4xl md:text-6xl font-black text-white leading-tight mb-4 lg:mb-5 text-center">
+            <h1 className="text-3xl sm:text-4xl md:text-6xl font-black text-white leading-tight mb-4 lg:mb-5 text-center gold-glow-strong">
               تصوير ومونتاج احترافي
               <br />
               <span className="text-[#D4AF37]">وهندسة صوتية</span>
@@ -249,7 +259,7 @@ export default function HomeClient({ packages, projects }: { packages: Package[]
             <div className="flex flex-wrap items-center justify-center gap-4 lg:gap-5">
               <Link
                 href="/projects"
-                className="flex items-center gap-3 px-6 sm:px-8 py-3.5 sm:py-4 rounded-full bg-[#D4AF37] text-[#f5ecd8] font-black text-sm sm:text-base shadow-xl hover:bg-[#3D0A0C] transition-all hover:scale-105"
+                className="flex items-center gap-3 px-6 sm:px-8 py-3.5 sm:py-4 rounded-full bg-[#D4AF37] text-[#f5ecd8] font-black text-sm sm:text-base shadow-xl hover:bg-[#3D0A0C] transition-all hover:scale-105 box-gold-glow"
               >
                 استكشف أعمالنا
                 <ArrowLeft size={18} />
@@ -283,7 +293,7 @@ export default function HomeClient({ packages, projects }: { packages: Package[]
             style={{ opacity: servicesOpacity, letterSpacing: servicesTracking, scale: servicesScale }}
             className="absolute left-[5%] lg:left-[10%] top-[58%] lg:top-[46%] text-center lg:text-right z-30 pointer-events-none"
           >
-            <h2 className="text-5xl md:text-7xl lg:text-7xl font-black text-[#D4AF37] uppercase drop-shadow-xl">
+            <h2 className="text-5xl md:text-7xl lg:text-7xl font-black text-[#D4AF37] uppercase drop-shadow-xl gold-glow-strong">
               خدماتنا
             </h2>
             <p className="text-white/60 text-base md:text-lg font-bold mt-3 tracking-widest hidden lg:block">
@@ -299,7 +309,7 @@ export default function HomeClient({ packages, projects }: { packages: Package[]
       {/* ─── Fixed Services Tech Box ─── Persists beyond sticky section ─── */}
       <motion.div
         style={{ opacity: boxFinalOpacity, y: boxY, boxShadow: boxGlow }}
-        className="fixed right-[5%] lg:right-[8%] top-[25%] w-[88vw] lg:w-[380px] border-[2px] border-dashed border-[#D4AF37]/50 bg-black/70 backdrop-blur-md rounded-lg z-[90] pointer-events-auto"
+        className="fixed right-[5%] lg:right-[8%] top-[25%] w-[88vw] lg:w-[380px] border-[2px] border-dashed border-[#D4AF37]/50 bg-black/70 backdrop-blur-lg rounded-lg z-[90] pointer-events-auto box-gold-glow"
       >
         {/* Corner Markers */}
         <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-[#D4AF37] -mt-1 -ml-1 rounded-tl" />
@@ -370,7 +380,13 @@ export default function HomeClient({ packages, projects }: { packages: Package[]
 
       {/* ─── Glowing Experience Timeline ─── */}
       <div ref={servicesEndRef} />
+
+      {/* Glass Divider */}
+      <div className="glass-divider w-3/4 max-w-2xl" />
       <TimelineSection />
+
+      {/* Glass Divider */}
+      <div className="glass-divider w-3/4 max-w-2xl" />
 
       {/* ─── Design Skills Globe ─── */}
       <DesignGlobe />
@@ -378,11 +394,14 @@ export default function HomeClient({ packages, projects }: { packages: Package[]
       {/* ─── Projects Grid (Horizontal Scroll Hijack) ─── */}
       <HorizontalProjects projects={studioProjects} />
 
+      {/* Glass Divider */}
+      <div className="glass-divider w-3/4 max-w-2xl" />
+
       {/* ─── Reviews ─── */}
       <section id="reviews" className="relative z-10 py-24 px-6">
         <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-4xl font-black text-white mb-14">ماذا يقولون عنّا</h2>
-          <div className="relative bg-black/50 backdrop-blur-md border border-[#D4AF37]/30 rounded-3xl p-10 shadow-2xl">
+          <h2 className="text-4xl font-black text-white mb-14 gold-glow">ماذا يقولون عنّا</h2>
+          <div className="relative bg-black/50 backdrop-blur-md border border-[#D4AF37]/30 rounded-3xl p-10 shadow-2xl box-gold-glow">
             <Quote size={36} className="text-[#D4AF37]/40 mx-auto mb-4" />
             <p className="text-xl text-white/85 font-medium leading-relaxed mb-8">
               "{activeReviews[activeReview]?.content}"
