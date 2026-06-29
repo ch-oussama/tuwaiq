@@ -1,84 +1,64 @@
 import { NextResponse } from 'next/server';
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
-
 export async function POST(request: Request) {
   try {
     const { messages } = await request.json();
 
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
-      return NextResponse.json({ error: 'رسالة مطلوبة' }, { status: 400 });
+      return NextResponse.json({ text: 'عذراً، يرجى كتابة رسالة.' });
     }
 
     const lastUserMsg = messages.filter((m: any) => m.role === 'user').pop();
     if (!lastUserMsg) {
-      return NextResponse.json({ error: 'لا توجد رسالة مستخدم' }, { status: 400 });
+      return NextResponse.json({ text: 'عذراً، يرجى كتابة رسالة.' });
     }
 
-    // Build conversation history for Gemini
-    const contents = messages.map((msg: any) => ({
-      role: msg.role === 'model' ? 'model' : 'user',
-      parts: msg.parts || [{ text: msg.text || '' }]
-    }));
+    const systemPrompt = `أنت مستشار أعمال ذكي ومتخصص في تقديم الاستشارات لشركة "طويق" الرائدة في مجال التقنية والتطوير.
 
-    // System instruction for the AI
-    const systemInstruction = `أنت مستشار أعمال ذكي ومتخصص في تقديم الاستشارات لشركة "طويق" الرائدة في مجال التقنية والتطوير. 
-    
 معلومات عن طويق:
 - شركة سعودية رائدة في تقديم الحلول التقنية والتطوير
 - تقدم خدمات: تطوير مواقع وتطبيقات، تصميم UI/UX، تحسين محركات البحث (SEO)، إدارة وسائل التواصل الاجتماعي، التصميم الجرافيكي
-- مقسمة لفرعين: Studio (للاستضافة والتطوير) و Design (للإبداع والتصميم)
+- مقسمة لفرعين: Studio و Design
 - باقات تبدأ من 999 ريال
-- فريق عمل محترف ومتخصص
 
-تعليمات مهمة:
-- كن ودوداً ومحترفاً في ردودك
+تعليمات:
 - أجب باللغة العربية الفصحى السهلة
+- كن ودوداً ومحترفاً
 - قدم معلومات دقيقة عن خدمات طويق
-- إذا لم تكن متأكداً من معلومة، اعترف بذلك ووجه العميل للتواصل مع فريق الدعم
-- شجع العميل على استكشاف المزيد من خدمات طويق
-- لا تقدم وعوداً غير واقعية
-- اسأل عن احتياجات العميل لتقديم المساعدة المناسبة`;
+- إذا لم تكن متأكداً، وجه العميل للتواصل مع فريق الدعم`;
 
-    const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+    const userText = lastUserMsg.parts?.[0]?.text || '';
+
+    const response = await fetch('https://text.pollinations.ai/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        contents: [
-          {
-            role: 'user',
-            parts: [{ text: systemInstruction }]
-          },
-          ...contents
+        model: 'openai',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userText }
         ],
-        generationConfig: {
-          temperature: 0.7,
-          topP: 0.9,
-          topK: 40,
-          maxOutputTokens: 1024,
-        },
-        safetySettings: [
-          { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
-          { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
-          { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
-          { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
-        ],
+        temperature: 0.8,
+        seed: Math.floor(Math.random() * 999999),
       }),
     });
 
     if (!response.ok) {
-      const errorData = await response.text();
-      console.error('Gemini API error:', errorData);
-      return NextResponse.json({ error: 'فشل الاتصال بخدمة الذكاء الاصطناعي' }, { status: 502 });
+      const errorText = await response.text();
+      console.error('Pollinations error:', response.status, errorText);
+      return NextResponse.json({ text: 'عذراً، حدث خطأ في الاتصال. حاول مرة أخرى.' });
     }
 
-    const data = await response.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    
+    const data = await response.text();
+    const text = data?.trim() || '';
+
+    if (!text) {
+      return NextResponse.json({ text: 'عذراً، لم أتمكن من فهم استفسارك.' });
+    }
+
     return NextResponse.json({ text });
   } catch (error) {
     console.error('Chat error:', error);
-    return NextResponse.json({ error: 'حدث خطأ في المعالجة' }, { status: 500 });
+    return NextResponse.json({ text: 'عذراً، حدث خطأ أثناء الاتصال.' });
   }
 }

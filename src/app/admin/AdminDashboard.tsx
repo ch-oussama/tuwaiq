@@ -1,15 +1,15 @@
 "use client";
 
-import { Package, Project, TermsData, PrivacyData, TermsSection, CustomOption, Order } from '@/lib/db';
+import { Package, Project, TermsData, PrivacyData, TermsSection, CustomOption, Order, FAQItem } from '@/lib/db';
 import { logoutAction } from './actions';
 import { LogOut, Plus, Trash2, Star, PackageOpen, AlertTriangle, CheckCircle, Lightbulb, Edit2, X, FileText, Shield, ShoppingCart, ClipboardList, HelpCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-type Tab = 'packages' | 'reviews' | 'projects' | 'terms' | 'privacy' | 'custom_options' | 'orders';
+type Tab = 'packages' | 'reviews' | 'projects' | 'terms' | 'privacy' | 'custom_options' | 'orders' | 'faqs';
 
-export default function AdminDashboard({ initialPackages, initialProjects, initialTerms, initialPrivacy, initialCustomOptions, initialOrders }: { initialPackages: Package[], initialProjects: Project[], initialTerms: TermsData, initialPrivacy: PrivacyData, initialCustomOptions: CustomOption[], initialOrders: Order[] }) {
+export default function AdminDashboard({ initialPackages, initialProjects, initialTerms, initialPrivacy, initialCustomOptions, initialOrders, initialFAQs }: { initialPackages: Package[], initialProjects: Project[], initialTerms: TermsData, initialPrivacy: PrivacyData, initialCustomOptions: CustomOption[], initialOrders: Order[], initialFAQs: FAQItem[] }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
@@ -46,6 +46,13 @@ export default function AdminDashboard({ initialPackages, initialProjects, initi
 
   // Orders state
   const [orders, setOrders] = useState<Order[]>(initialOrders);
+
+  // FAQ state
+  const [faqs, setFaqs] = useState<FAQItem[]>(initialFAQs);
+  const [faqQuestion, setFaqQuestion] = useState('');
+  const [faqAnswer, setFaqAnswer] = useState('');
+  const [faqLoading, setFaqLoading] = useState(false);
+  const [editingFaq, setEditingFaq] = useState<FAQItem | null>(null);
 
   const showNotif = (type: 'success' | 'error', msg: string) => {
     setNotification({ type, msg });
@@ -459,6 +466,69 @@ export default function AdminDashboard({ initialPackages, initialProjects, initi
     setDeleteLoading(null);
   }
 
+  async function handleAddFAQ(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setFaqLoading(true);
+    try {
+      const res = await fetch('/api/faqs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: faqQuestion, answer: faqAnswer }),
+      });
+      if (res.ok) {
+        setFaqQuestion('');
+        setFaqAnswer('');
+        showNotif('success', 'تمت إضافة السؤال بنجاح ✓');
+        router.refresh();
+      } else {
+        showNotif('error', 'فشل الإضافة');
+      }
+    } catch {
+      showNotif('error', 'خطأ في الاتصال');
+    }
+    setFaqLoading(false);
+  }
+
+  async function handleEditFAQ(faq: FAQItem) {
+    setEditingFaq(faq);
+    setFaqQuestion(faq.question);
+    setFaqAnswer(faq.answer);
+  }
+
+  async function handleUpdateFAQ(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!editingFaq) return;
+    setFaqLoading(true);
+    try {
+      const res = await fetch('/api/faqs', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: editingFaq.id, question: faqQuestion, answer: faqAnswer }),
+      });
+      if (res.ok) {
+        setEditingFaq(null);
+        setFaqQuestion('');
+        setFaqAnswer('');
+        showNotif('success', 'تم تعديل السؤال بنجاح ✓');
+        router.refresh();
+      }
+    } catch {
+      showNotif('error', 'خطأ في الاتصال');
+    }
+    setFaqLoading(false);
+  }
+
+  async function handleDeleteFAQ(id: string) {
+    if (!confirm('هل أنت متأكد من حذف هذا السؤال؟')) return;
+    try {
+      const res = await fetch(`/api/faqs?id=${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        showNotif('success', 'تم حذف السؤال بنجاح');
+        router.refresh();
+      }
+    } catch {}
+  }
+
   return (
     <div className="min-h-screen bg-background py-24 px-4 sm:px-6">
       <div className="max-w-7xl mx-auto">
@@ -518,7 +588,7 @@ export default function AdminDashboard({ initialPackages, initialProjects, initi
 
         {/* Tabs */}
         <div className="flex gap-2 mb-8 bg-surface border border-border rounded-2xl p-1.5 w-fit flex-wrap">
-          {([['packages', 'الباقات', PackageOpen], ['reviews', 'التقييمات', Star], ['projects', 'المشاريع', Lightbulb], ['terms', 'الشروط', FileText], ['privacy', 'الخصوصية', Shield], ['custom_options', 'خيارات التخصيص', ShoppingCart], ['orders', 'الطلبات', ClipboardList]] as const).map(([key, label, Icon]) => (
+          {([['packages', 'الباقات', PackageOpen], ['reviews', 'التقييمات', Star], ['projects', 'المشاريع', Lightbulb], ['terms', 'الشروط', FileText], ['privacy', 'الخصوصية', Shield], ['custom_options', 'خيارات التخصيص', ShoppingCart], ['orders', 'الطلبات', ClipboardList], ['faqs', 'الأسئلة الشائعة', HelpCircle]] as const).map(([key, label, Icon]) => (
             <button
               key={key}
               onClick={() => setActiveTab(key)}
@@ -1293,6 +1363,58 @@ export default function AdminDashboard({ initialPackages, initialProjects, initi
                     <span className="text-xs text-foreground/30 self-center mr-auto">
                       {new Date(order.createdAt).toLocaleString('ar-SA')}
                     </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'faqs' && (
+          <div className="space-y-6">
+            <h2 className="text-xl font-black mb-2">الأسئلة الشائعة</h2>
+            <form onSubmit={editingFaq ? handleUpdateFAQ : handleAddFAQ} className="bg-surface border border-border rounded-2xl p-6 shadow-sm space-y-4">
+              <div>
+                <label className="block text-xs font-black mb-1.5 text-foreground/70">السؤال</label>
+                <input value={faqQuestion} onChange={e => setFaqQuestion(e.target.value)} required className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-gold transition-colors" placeholder="أدخل السؤال" />
+              </div>
+              <div>
+                <label className="block text-xs font-black mb-1.5 text-foreground/70">الإجابة</label>
+                <textarea value={faqAnswer} onChange={e => setFaqAnswer(e.target.value)} required rows={3} className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-gold transition-colors resize-none" placeholder="أدخل الإجابة" />
+              </div>
+              <div className="flex gap-3">
+                <button type="submit" disabled={faqLoading} className="flex-1 bg-brand-gold text-brand-brown font-black py-3 rounded-xl hover:brightness-105 transition disabled:opacity-50 shadow-md">
+                  {faqLoading ? 'جاري الحفظ...' : editingFaq ? 'حفظ التعديلات' : 'إضافة سؤال'}
+                </button>
+                {editingFaq && (
+                  <button type="button" onClick={() => { setEditingFaq(null); setFaqQuestion(''); setFaqAnswer(''); }} className="px-6 py-3 rounded-xl border border-border text-foreground font-bold hover:bg-surface-hover transition-colors">
+                    إلغاء
+                  </button>
+                )}
+              </div>
+            </form>
+            <div className="space-y-3">
+              {faqs.length === 0 && (
+                <div className="text-center py-16 text-foreground/60 bg-surface rounded-2xl border border-border">
+                  <HelpCircle size={40} className="mx-auto mb-4 opacity-30" />
+                  <p className="font-bold">لا توجد أسئلة بعد.</p>
+                </div>
+              )}
+              {faqs.map(faq => (
+                <div key={faq.id} className="bg-surface border border-border rounded-2xl p-5 shadow-sm">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-bold text-foreground mb-1">{faq.question}</h3>
+                      <p className="text-sm text-foreground/60 line-clamp-2">{faq.answer}</p>
+                    </div>
+                    <div className="flex gap-2 flex-shrink-0">
+                      <button onClick={() => handleEditFAQ(faq)} className="p-2 rounded-lg hover:bg-brand-gold/10 text-brand-gold transition-colors" title="تعديل">
+                        <Edit2 size={16} />
+                      </button>
+                      <button onClick={() => handleDeleteFAQ(faq.id)} className="p-2 rounded-lg hover:bg-red-50 text-red-400 hover:text-red-600 transition-colors" title="حذف">
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}

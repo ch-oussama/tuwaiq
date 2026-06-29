@@ -76,10 +76,18 @@ export interface Order {
   branch?: 'studio' | 'design';
 }
 
+export interface FAQItem {
+  id: string;
+  question: string;
+  answer: string;
+  order?: number;
+}
+
 const packagesCollection = collection(db, 'packages');
 const projectsCollection = collection(db, 'projects');
 const customOptionsCollection = collection(db, 'customOptions');
 const ordersCollection = collection(db, 'orders');
+const faqsCollection = collection(db, 'faqs');
 
 const termsDoc = doc(db, 'content', 'terms');
 const privacyDoc = doc(db, 'content', 'privacy');
@@ -283,6 +291,42 @@ export async function deleteProject(id: string): Promise<boolean> {
     await deleteDoc(doc(db, 'projects', id));
     return true;
   } catch (error) {
+    return false;
+  }
+}
+
+export async function getFAQs(): Promise<FAQItem[]> {
+  try {
+    const snapshot = await getDocs(faqsCollection);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as FAQItem));
+  } catch (error) {
+    console.error('Error fetching FAQs:', error);
+    return [];
+  }
+}
+
+export async function addFAQ(faq: Omit<FAQItem, 'id'>): Promise<FAQItem> {
+  const newRef = doc(faqsCollection);
+  await setDoc(newRef, faq);
+  return { id: newRef.id, ...faq } as FAQItem;
+}
+
+export async function updateFAQ(id: string, data: Partial<FAQItem>): Promise<boolean> {
+  try {
+    await updateDoc(doc(db, 'faqs', id), data);
+    return true;
+  } catch (error) {
+    console.error('Error updating FAQ:', error);
+    return false;
+  }
+}
+
+export async function deleteFAQ(id: string): Promise<boolean> {
+  try {
+    await deleteDoc(doc(db, 'faqs', id));
+    return true;
+  } catch (error) {
+    console.error('Error deleting FAQ:', error);
     return false;
   }
 }
