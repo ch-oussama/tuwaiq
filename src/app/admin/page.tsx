@@ -2,7 +2,6 @@ import { cookies } from 'next/headers';
 import AdminDashboard from './AdminDashboard';
 import { getPackages, getProjects, getTerms, getPrivacy, getCustomOptions, getOrders, getFAQs } from '@/lib/db';
 import { redirect } from 'next/navigation';
-import { DUMMY_PACKAGES, PROJECTS as DUMMY_PROJECTS } from '@/lib/dummyData';
 import { DEFAULT_TERMS } from '@/app/terms/page';
 import { DEFAULT_PRIVACY } from '@/app/privacy/page';
 
@@ -13,8 +12,8 @@ export default async function AdminPage() {
     redirect('/login');
   }
 
-  let packages = DUMMY_PACKAGES;
-  let projects = DUMMY_PROJECTS;
+  let packages: any[] = [];
+  let projects: any[] = [];
   let terms = DEFAULT_TERMS;
   let privacy = DEFAULT_PRIVACY;
   let customOptions: any[] = [];
@@ -38,7 +37,7 @@ export default async function AdminPage() {
     orders = await getOrders();
     faqs = await getFAQs();
   } catch (error) {
-    console.error("Firebase fetch error, falling back to dummy data", error);
+    console.error("Firebase fetch error", error);
   }
   
   return <AdminDashboard initialPackages={packages} initialProjects={projects} initialTerms={terms} initialPrivacy={privacy} initialCustomOptions={customOptions} initialOrders={orders} initialFAQs={faqs} />;

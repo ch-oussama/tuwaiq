@@ -100,7 +100,7 @@ export default function GeminiWidget() {
             <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-surface">
               {messages.map((msg, i) => (
                 <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm flex gap-3 ${msg.role === 'user' ? 'bg-brand-gold text-brand-brown rounded-br-none' : 'bg-background border border-border text-foreground rounded-bl-none'}`}>
+                  <div className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm flex gap-3 ${msg.role === 'user' ? 'bg-brand-gold text-brand-beige rounded-br-none' : 'bg-background border border-border text-foreground rounded-bl-none'}`}>
                     {msg.role === 'model' && <Bot size={16} className="mt-1 flex-shrink-0" />}
                     <div className="leading-relaxed whitespace-pre-wrap">{msg.parts[0].text}</div>
                     {msg.role === 'user' && <User size={16} className="mt-1 flex-shrink-0" />}
@@ -128,7 +128,7 @@ export default function GeminiWidget() {
                 <Link
                   href="/login"
                   onClick={() => setIsOpen(false)}
-                  className="w-full bg-brand-gold text-brand-brown font-black py-3 rounded-xl transition-transform hover:scale-105"
+                  className="w-full bg-brand-gold text-brand-beige font-black py-3 rounded-xl transition-transform hover:scale-105"
                 >
                   تسجيل الدخول للدردشة
                 </Link>
@@ -147,7 +147,7 @@ export default function GeminiWidget() {
                 <button 
                   onClick={sendMessage}
                   disabled={isLoading || !input.trim()}
-                  className="bg-brand-gold text-brand-brown w-12 h-12 rounded-xl flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed transition-opacity hover:opacity-90"
+                  className="bg-brand-gold text-brand-beige w-12 h-12 rounded-xl flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed transition-opacity hover:opacity-90"
                 >
                   <Send size={20} />
                 </button>
@@ -159,7 +159,7 @@ export default function GeminiWidget() {
 
       <button 
         onClick={toggleChat}
-        className="w-16 h-16 bg-brand-gold text-brand-brown rounded-full flex items-center justify-center shadow-2xl hover:scale-105 transition-transform relative"
+        className="w-16 h-16 bg-brand-gold text-[#3E2723] rounded-full flex items-center justify-center shadow-2xl hover:scale-105 transition-transform relative dark:shadow-[0_0_20px_rgba(167, 139, 102,0.3)]"
       >
         <MessageCircle size={28} />
         {!isOpen && (

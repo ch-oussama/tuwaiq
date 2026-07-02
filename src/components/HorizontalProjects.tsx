@@ -56,15 +56,15 @@ export default function HorizontalProjects({ projects }: { projects: Project[] }
       className="relative z-30"
       style={{ height: `calc(100vh + ${displayProjects.length * 80}vh)` }}
     >
-      <div dir="ltr" className={`sticky top-0 h-screen w-full overflow-hidden flex items-center ${branch === 'studio' ? 'bg-black/80 border-y border-[#D4AF37]/20' : 'bg-[#f5ecd8] border-y border-[#5c1a16]/10'} relative`}>
+      <div dir="ltr" className={`sticky top-0 h-screen w-full overflow-hidden flex items-center ${branch === 'studio' ? 'bg-black/80 border-y border-[#a78b66]/20' : 'bg-[#f5ecd8] border-y border-[#5c1a16]/10'} relative`}>
         
         {/* Title pinned in the background/top */}
         <motion.div 
           style={{ opacity: opacityTransform }}
           className="absolute top-6 md:top-12 left-0 right-0 text-center px-6 pointer-events-none z-50"
         >
-          <h2 className={`text-4xl md:text-5xl font-black ${branch === 'studio' ? 'text-[#111]' : 'text-[#2d1a12]'}`}>{t(lang, 'projects.horizontal_title')}</h2>
-          <p className={`mt-3 text-lg ${branch === 'studio' ? 'text-[#333]/70' : 'text-[#4a3530]/70'}`}>{t(lang, 'projects.horizontal_subtitle')}</p>
+          <h2 className={`text-4xl md:text-5xl font-black ${branch === 'studio' ? 'text-white' : 'text-[#2d1a12]'}`}>{t(lang, 'projects.horizontal_title')}</h2>
+          <p className={`mt-3 text-lg ${branch === 'studio' ? 'text-white/70' : 'text-[#4a3530]/70'}`}>{t(lang, 'projects.horizontal_subtitle')}</p>
         </motion.div>
 
         {/* The Horizontal Track */}
@@ -86,7 +86,7 @@ export default function HorizontalProjects({ projects }: { projects: Project[] }
                 viewport={{ once: false, amount: 0.3 }}
                 dir="rtl"
                 className={`relative flex-shrink-0 w-[90vw] md:w-[75vw] lg:w-[65vw] max-w-5xl h-[55vh] md:h-[60vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row group ${
-                  branch === 'studio' ? 'bg-[#0a0a0a] border border-[#D4AF37]/30' : 'bg-[#5c1a16]'
+                  branch === 'studio' ? 'bg-[#0a0a0a] border border-[#a78b66]/30' : 'bg-[#5c1a16]'
                 }`}
               >
                 {/* Number overlay */}
@@ -106,12 +106,24 @@ export default function HorizontalProjects({ projects }: { projects: Project[] }
                   transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
                   className="w-full md:w-[55%] h-1/2 md:h-full relative overflow-hidden z-10 bg-[#2d1a12]/20"
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img 
-                    src={project.imageUrl || project.images?.[0] || 'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=2574&auto=format&fit=crop'} 
-                    alt={project.title} 
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 max-w-[none]" 
-                  />
+                  {(() => {
+                    const src = project.imageUrl || project.images?.[0] || 'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=2574&auto=format&fit=crop';
+                    const isVid = src.match(/\.(mp4|webm|ogg|mov)(\?.*)?$/i);
+                    return isVid ? (
+                      <video 
+                        src={src} 
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 max-w-[none]" 
+                        autoPlay loop muted playsInline
+                      />
+                    ) : (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img 
+                        src={src} 
+                        alt={project.title} 
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 max-w-[none]" 
+                      />
+                    );
+                  })()}
                   <div className={`absolute inset-0 bg-gradient-to-t opacity-80 md:hidden ${
                     branch === 'studio' ? 'from-[#0a0a0a] to-transparent' : 'from-[#5c1a16] to-transparent'
                   }`} />
@@ -128,7 +140,7 @@ export default function HorizontalProjects({ projects }: { projects: Project[] }
                     transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
                   >
                     <div className={`text-sm font-bold tracking-widest uppercase mb-2 ${
-                      branch === 'studio' ? 'text-[#D4AF37]' : 'text-[#f5ecd8]/60'
+                      branch === 'studio' ? 'text-[#a78b66]' : 'text-[#f5ecd8]/60'
                     }`}>
                       {project.category || (branch === 'studio' ? t(lang, 'projects.coding') : t(lang, 'globe.branding'))}
                     </div>
@@ -151,8 +163,8 @@ export default function HorizontalProjects({ projects }: { projects: Project[] }
                     <Link href={`/projects/${project.id}`}>
                       <button className={`flex items-center gap-3 px-6 py-3 rounded-full font-bold transition-all hover:gap-4 hover:shadow-lg ${
                         branch === 'studio' 
-                          ? 'bg-[#D4AF37] text-black hover:bg-[#c9a334]' 
-                          : 'bg-[#f5ecd8] text-[#5c1a16]'
+                          ? 'bg-[#a78b66] text-black hover:bg-[#8b7355]' 
+                          : 'bg-[#a78b66] text-[#5c1a16] hover:bg-[#8b7355]'
                       }`}>
                         {t(lang, 'projects.view_project')} <ArrowLeft size={18} />
                       </button>

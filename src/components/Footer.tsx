@@ -1,4 +1,3 @@
-import { DUMMY_PACKAGES } from '@/lib/dummyData';
 import FooterClient from './FooterClient';
 
 async function getFooterPackages() {
@@ -7,7 +6,7 @@ async function getFooterPackages() {
     const fetched = await getPackages();
     if (fetched.length > 0) return fetched;
   } catch {}
-  return DUMMY_PACKAGES;
+  return [];
 }
 
 export default async function Footer() {

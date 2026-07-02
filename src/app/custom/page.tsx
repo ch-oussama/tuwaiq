@@ -125,7 +125,7 @@ export default function CustomPage() {
                     key={cat}
                     onClick={() => setCategory(cat)}
                     className={`px-4 py-2 rounded-xl font-bold text-sm whitespace-nowrap transition-colors ${
-                      category === cat ? 'bg-brand-gold text-brand-brown' : 'bg-surface border border-border text-foreground/70 hover:border-brand-gold'
+                      category === cat ? 'bg-brand-gold text-brand-beige' : 'bg-surface border border-border text-foreground/70 hover:border-brand-gold'
                     }`}
                   >
                     {cat === 'all' ? (lang === 'ar' ? 'الكل' : 'All') : cat}
@@ -147,12 +147,12 @@ export default function CustomPage() {
                     onClick={() => toggleOption(opt)}
                     className={`relative cursor-pointer rounded-2xl p-5 border-2 transition-all duration-300 ${
                       isSelected
-                        ? 'border-brand-gold bg-brand-gold/5 shadow-[0_0_20px_rgba(240,192,64,0.15)]'
+                        ? 'border-brand-gold bg-brand-gold/5 shadow-[0_0_20px_rgba(167, 139, 102,0.15)]'
                         : 'border-border bg-surface hover:border-brand-gold/50'
                     }`}
                   >
                     {isSelected && (
-                      <div className="absolute top-3 left-3 bg-brand-gold text-brand-brown rounded-full p-1">
+                      <div className="absolute top-3 left-3 bg-brand-gold text-brand-beige rounded-full p-1">
                         <Check size={14} />
                       </div>
                     )}
@@ -213,7 +213,7 @@ export default function CustomPage() {
                 <button
                   onClick={() => setShowForm(true)}
                   disabled={selected.size === 0}
-                  className="w-full bg-brand-gold text-brand-brown font-black py-3.5 rounded-xl hover:brightness-105 transition disabled:opacity-50 shadow-md flex items-center justify-center gap-2"
+                  className="w-full bg-brand-gold text-brand-beige font-black py-3.5 rounded-xl hover:brightness-105 transition disabled:opacity-50 shadow-md flex items-center justify-center gap-2"
                 >
                   <ArrowLeft size={18} /> {t(lang, 'custom.submit')}
                 </button>
@@ -236,7 +236,7 @@ export default function CustomPage() {
                     <input value={phone} onChange={e => setPhone(e.target.value)} required className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-gold transition-colors" />
                   </div>
                   <div className="flex gap-2 pt-2">
-                    <button type="submit" disabled={loading} className="flex-1 bg-brand-gold text-brand-brown font-black py-3 rounded-xl hover:brightness-105 transition disabled:opacity-50 shadow-md flex items-center justify-center gap-2">
+                    <button type="submit" disabled={loading} className="flex-1 bg-brand-gold text-brand-beige font-black py-3 rounded-xl hover:brightness-105 transition disabled:opacity-50 shadow-md flex items-center justify-center gap-2">
                       {loading ? '...' : <><Send size={16} /> {t(lang, 'order.submit_order')}</>}
                     </button>
                     <button type="button" onClick={() => setShowForm(false)} className="px-4 py-3 rounded-xl border border-border text-foreground/60 hover:bg-surface-hover transition-colors">

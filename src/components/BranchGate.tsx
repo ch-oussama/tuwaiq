@@ -260,17 +260,17 @@ export default function BranchGate({ children }: { children: React.ReactNode }) 
       </motion.div>
 
       {/* Mobile Footer (Inline at the very bottom of scroll) */}
-      <div className="md:hidden w-full bg-[#0A0A0A] border-t border-[#D4AF37]/20 z-[120] flex flex-col items-center gap-4 py-8 px-6 text-[#8c8c8c] text-xs font-medium relative mt-auto">
+      <div className="md:hidden w-full bg-[#0A0A0A] border-t border-[#a78b66]/20 z-[120] flex flex-col items-center gap-4 py-8 px-6 text-[#8c8c8c] text-xs font-medium relative mt-auto">
         {/* Center Logo */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo design.webp" className="w-10 h-10 opacity-30 grayscale sepia rounded-full mb-2" alt="Tuwaiq" />
         
         {/* Socials */}
-        <div className="flex items-center justify-center w-full gap-6 border-b border-[#D4AF37]/10 pb-6 mb-2">
-          <a href="#" className="flex items-center gap-2 hover:text-[#D4AF37] transition-colors"><MessageCircle size={14} /> واتس</a>
-          <a href="#" className="flex items-center gap-2 hover:text-[#D4AF37] transition-colors"><MessageSquare size={14} /> ديسكورد</a>
-          <a href="#" className="flex items-center gap-2 hover:text-[#D4AF37] transition-colors font-sans text-sm pb-0.5">𝕏</a>
-          <a href="#" className="flex items-center gap-2 hover:text-[#D4AF37] transition-colors"><span className="text-sm">إنستقرام</span></a>
+        <div className="flex items-center justify-center w-full gap-6 border-b border-[#a78b66]/10 pb-6 mb-2">
+          <a href="#" className="flex items-center gap-2 hover:text-[#a78b66] transition-colors"><MessageCircle size={14} /> واتس</a>
+          <a href="#" className="flex items-center gap-2 hover:text-[#a78b66] transition-colors"><MessageSquare size={14} /> ديسكورد</a>
+          <a href="#" className="flex items-center gap-2 hover:text-[#a78b66] transition-colors font-sans text-sm pb-0.5">𝕏</a>
+          <a href="#" className="flex items-center gap-2 hover:text-[#a78b66] transition-colors"><span className="text-sm">إنستقرام</span></a>
         </div>
 
         {/* Text */}

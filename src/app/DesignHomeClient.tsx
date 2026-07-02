@@ -4,7 +4,6 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import CountUp from 'react-countup';
 import Link from 'next/link';
 import { Package, Project } from '@/lib/db';
-import { DUMMY_PACKAGES, DUMMY_REVIEWS, PROJECTS as DUMMY_PROJECTS } from '@/lib/dummyData';
 import { useBranch } from '@/lib/BranchContext';
 import { Star, ArrowLeft, ArrowUpLeft, Layers, Target, Diamond, Infinity as InfinityIcon, Play, Quote } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
@@ -31,14 +30,13 @@ const features = [
 
 export default function DesignHomeClient({ packages, projects }: { packages: Package[], projects: Project[] }) {
   const { setBranch } = useBranch();
-  const allPackages = packages.length > 0 ? packages : DUMMY_PACKAGES;
-  const displayPackages = allPackages.filter(p => !p.branch || p.branch === 'design');
+  const displayPackages = packages.filter(p => p.branch === 'design');
   
   // Filter projects for the design branch
-  const designProjects = projects.filter(p => !p.branch || p.branch === 'design');
+  const designProjects = projects.filter(p => p.branch === 'design');
 
   const branchReviews = displayPackages.flatMap(p => p.reviews || []);
-  const activeReviews = branchReviews.length > 0 ? branchReviews : DUMMY_REVIEWS;
+  const activeReviews = branchReviews.length > 0 ? branchReviews : [];
   const [activeReview, setActiveReview] = useState(0);
   const [hoveredSection, setHoveredSection] = useState<'dev' | 'des' | null>(null);
 
@@ -140,23 +138,10 @@ export default function DesignHomeClient({ packages, projects }: { packages: Pac
 
   return (
     <div
-      className="flex flex-col w-full min-h-screen relative overflow-clip bg-noise"
+      className="flex flex-col w-full min-h-screen relative overflow-clip"
     >
-      {/* Fixed Background */}
-      <div
-        className="fixed inset-0 bg-cover bg-center -z-10"
-        aria-hidden
-      >
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: "url('/bg design.png')" }}
-        />
-        {/* Overlay */}
-        <div className="absolute inset-0 bg-[#f5ecd8]/60 pointer-events-none" />
-      </div>
-
       {/* Ambient glow */}
-      <div className="fixed top-[-30%] left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full bg-[#D4AF37]/8 blur-[120px] pointer-events-none -z-[5]" />
+      <div className="fixed top-[-30%] left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full bg-[#a78b66]/8 blur-[120px] pointer-events-none -z-[5]" />
 
       {/* Dynamic Scroll Indicator */}
       <motion.div 

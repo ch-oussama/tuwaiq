@@ -83,7 +83,7 @@ export default function ProjectDetailsClient({ projectId }: { projectId: string 
   // ── Loading State ──
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className={`min-h-screen  flex items-center justify-center`}>
         <div className="text-center">
           <Loader2 className="w-12 h-12 animate-spin text-brand-gold mx-auto mb-4" />
           <p className="text-brand-brown/60 font-bold">{t(lang, 'projects.loading')}</p>
@@ -95,7 +95,7 @@ export default function ProjectDetailsClient({ projectId }: { projectId: string 
   // ── Not Found State ──
   if (notFound || !project) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className={`min-h-screen  flex items-center justify-center`}>
         <div className="text-center">
           <p className="text-8xl mb-6">🔍</p>
           <h1 className="text-4xl font-black text-brand-brown mb-4">{t(lang, 'projects.not_found')}</h1>
@@ -111,7 +111,7 @@ export default function ProjectDetailsClient({ projectId }: { projectId: string 
   // ── Project View (Behance Style) ──
   return (
     <>
-      <div className="min-h-screen bg-background">
+      <div className={`min-h-screen `}>
 
         {/* ── Hero Header ── */}
         <div className="pt-32 pb-16 px-4 sm:px-6">
@@ -131,7 +131,7 @@ export default function ProjectDetailsClient({ projectId }: { projectId: string 
 
               {/* Category + Title */}
               <div className="mb-4">
-                <span className="inline-block bg-brand-gold text-brand-brown px-4 py-1.5 rounded-full text-sm font-black shadow-sm mb-4">
+                <span className="inline-block bg-brand-gold text-brand-beige px-4 py-1.5 rounded-full text-sm font-black shadow-sm mb-4">
                   {project.category}
                 </span>
                 <h1 className="text-5xl md:text-7xl font-black text-foreground leading-tight">
@@ -188,13 +188,21 @@ export default function ProjectDetailsClient({ projectId }: { projectId: string 
                   onClick={() => openLightbox(i)}
                   className="relative group cursor-zoom-in overflow-hidden rounded-2xl shadow-xl bg-brand-brown/5"
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={img}
-                    alt={`${project.title} ${i + 1}`}
-                    className="w-full h-auto object-contain"
-                    loading={i === 0 ? 'eager' : 'lazy'}
-                  />
+                  {img.match(/\.(mp4|webm|ogg|mov)(\?.*)?$/i) ? (
+                    <video
+                      src={img}
+                      className="w-full h-auto object-contain"
+                      autoPlay loop muted playsInline
+                    />
+                  ) : (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                      src={img}
+                      alt={`${project.title} ${i + 1}`}
+                      className="w-full h-auto object-contain"
+                      loading={i === 0 ? 'eager' : 'lazy'}
+                    />
+                  )}
                   {/* Zoom hint overlay */}
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-500 flex items-center justify-center">
                     <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/70 text-white px-4 py-2 rounded-full text-sm font-bold backdrop-blur-sm">
@@ -216,7 +224,7 @@ export default function ProjectDetailsClient({ projectId }: { projectId: string 
               <p className="text-foreground/70 mb-8">{t(lang, 'projects.contact_cta')}</p>
               <Link
                 href="/packages"
-                className="inline-block px-12 py-4 bg-brand-gold text-brand-brown font-black text-lg rounded-full hover:scale-105 transition-transform shadow-2xl"
+                className="inline-block px-12 py-4 bg-brand-gold text-brand-beige font-black text-lg rounded-full hover:scale-105 transition-transform shadow-2xl"
               >
                 {t(lang, 'projects.view_packages')}
               </Link>
@@ -279,12 +287,20 @@ export default function ProjectDetailsClient({ projectId }: { projectId: string 
               className="relative max-w-[90vw] max-h-[88vh] flex items-center justify-center"
               onClick={e => e.stopPropagation()}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={allImages[currentIndex]}
-                alt={`${project.title}`}
-                className="max-w-full max-h-[88vh] object-contain rounded-lg shadow-2xl"
-              />
+              {allImages[currentIndex].match(/\.(mp4|webm|ogg|mov)(\?.*)?$/i) ? (
+                <video
+                  src={allImages[currentIndex]}
+                  className="max-w-full max-h-[88vh] object-contain rounded-lg shadow-2xl"
+                  autoPlay loop muted playsInline
+                />
+              ) : (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src={allImages[currentIndex]}
+                  alt={`${project.title}`}
+                  className="max-w-full max-h-[88vh] object-contain rounded-lg shadow-2xl"
+                />
+              )}
             </motion.div>
 
             {/* Counter */}

@@ -47,7 +47,7 @@ export default function FilmstripCamera() {
         <motion.path
           d={PATH_D}
           fill="none"
-          stroke="rgba(212,175,55,0.08)"
+          stroke="rgba(167, 139, 102,0.08)"
           strokeWidth="3.5"
           strokeLinecap="round"
           style={{ pathLength: scrollYProgress }}
@@ -58,7 +58,7 @@ export default function FilmstripCamera() {
         <motion.path
           d={PATH_D}
           fill="none"
-          stroke="rgba(212,175,55,0.15)"
+          stroke="rgba(167, 139, 102,0.15)"
           strokeWidth="1.2"
           strokeLinecap="round"
           style={{ pathLength: scrollYProgress }}
@@ -80,7 +80,7 @@ export default function FilmstripCamera() {
         <motion.path
           d={PATH_D}
           fill="none"
-          stroke="rgba(212,175,55,0.35)"
+          stroke="rgba(167, 139, 102,0.35)"
           strokeWidth="0.4"
           strokeLinecap="butt"
           strokeDasharray="0.2 4"
@@ -117,14 +117,14 @@ export default function FilmstripCamera() {
             alt=""
             className="w-full h-full object-contain"
             style={{
-              filter: 'drop-shadow(0 4px 12px rgba(212,175,55,0.5))',
+              filter: 'drop-shadow(0 4px 12px rgba(167, 139, 102,0.5))',
             }}
           />
           {/* Tiny glow ring around camera */}
           <div
             className="absolute inset-0 rounded-full animate-ping"
             style={{
-              background: 'radial-gradient(circle, rgba(212,175,55,0.3) 0%, transparent 70%)',
+              background: 'radial-gradient(circle, rgba(167, 139, 102,0.3) 0%, transparent 70%)',
               animationDuration: '2s',
             }}
           />

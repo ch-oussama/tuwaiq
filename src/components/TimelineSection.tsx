@@ -72,11 +72,11 @@ function TimelineNode({ exp, isEven, scrollYProgress, threshold }: NodeProps) {
     <motion.div style={{ opacity, x }} className="max-w-xs">
       <div className={`p-5 rounded-2xl border backdrop-blur-sm ${
         branch === 'studio'
-          ? 'bg-[#D4AF37]/5 border-[#D4AF37]/20'
+          ? 'bg-[#a78b66]/5 border-[#a78b66]/20'
           : 'bg-[#5c1a16]/4 border-[#5c1a16]/15'
       }`}>
         <span className={`text-xs font-black tracking-widest uppercase ${
-          branch === 'studio' ? 'text-[#D4AF37]' : 'text-[#5c1a16]'
+          branch === 'studio' ? 'text-[#a78b66]' : 'text-[#5c1a16]'
         }`}>
           {exp.company}
         </span>
@@ -96,7 +96,7 @@ function TimelineNode({ exp, isEven, scrollYProgress, threshold }: NodeProps) {
 
   const DateContent = (
     <motion.div style={{ opacity, x: dateX }}>
-      <span className={`text-4xl md:text-5xl font-black ${branch === 'studio' ? 'text-[#D4AF37]/20' : 'text-[#5c1a16]/25'}`}>
+      <span className={`text-4xl md:text-5xl font-black ${branch === 'studio' ? 'text-[#a78b66]/20' : 'text-[#5c1a16]/25'}`}>
         {exp.year}
       </span>
     </motion.div>
@@ -112,7 +112,7 @@ function TimelineNode({ exp, isEven, scrollYProgress, threshold }: NodeProps) {
           style={{ scale: nodeScale, opacity }}
           className={`w-7 h-7 rounded-full border-[3px] ${
             branch === 'studio'
-              ? 'bg-[#111] border-[#D4AF37] shadow-[0_0_18px_rgba(212,175,55,0.7)]'
+              ? 'bg-[#111] border-[#a78b66] shadow-[0_0_18px_rgba(167, 139, 102,0.7)]'
               : 'bg-[#f5ecd8] border-[#5c1a16] shadow-[0_0_18px_rgba(92,26,22,0.85)]'
           }`}
         />
@@ -143,7 +143,7 @@ export default function TimelineSection() {
     >
       <div className="max-w-5xl mx-auto relative">
         <div className="text-center mb-28">
-          <h2 className={`text-xs font-black tracking-[0.3em] uppercase mb-4 ${branch === 'studio' ? 'text-[#D4AF37]' : 'text-[#5c1a16]'}`}>
+          <h2 className={`text-xs font-black tracking-[0.3em] uppercase mb-4 ${branch === 'studio' ? 'text-[#a78b66]' : 'text-[#5c1a16]'}`}>
             مسيرتنا
           </h2>
           <h3 className={`text-4xl md:text-5xl font-black ${branch === 'studio' ? 'text-white' : 'text-[#2d1a12]'}`}>
@@ -152,14 +152,14 @@ export default function TimelineSection() {
         </div>
 
         <div className="relative flex flex-col gap-28 md:gap-36">
-          <div className={`absolute inset-y-0 left-[24px] md:left-1/2 w-px md:-translate-x-px ${branch === 'studio' ? 'bg-[#D4AF37]/20' : 'bg-[#5c1a16]/15'}`} />
+          <div className={`absolute inset-y-0 left-[24px] md:left-1/2 w-px md:-translate-x-px ${branch === 'studio' ? 'bg-[#a78b66]/20' : 'bg-[#5c1a16]/15'}`} />
 
           <div className="absolute inset-y-0 left-[24px] md:left-1/2 w-px md:-translate-x-px overflow-visible z-10">
             <motion.div
               style={{ scaleY: scrollYProgress, transformOrigin: "top" }}
               className={`w-full h-full ${
                 branch === 'studio'
-                  ? 'bg-gradient-to-b from-[#8c7117] via-[#D4AF37] to-[#ffeaa3] shadow-[0_0_10px_rgba(212,175,55,0.6)]'
+                  ? 'bg-gradient-to-b from-[#8c7117] via-[#a78b66] to-[#ffeaa3] shadow-[0_0_10px_rgba(167, 139, 102,0.6)]'
                   : 'bg-gradient-to-b from-[#5c1a16] via-[#8a2020] to-[#ff2a1f] shadow-[0_0_10px_rgba(255,42,31,0.5)]'
               }`}
             />
@@ -167,7 +167,7 @@ export default function TimelineSection() {
               style={{ top: tipY }}
               className={`absolute left-1/2 -translate-x-1/2 -translate-y-1/2 w-5 h-5 rounded-full border-2 z-20 ${
                 branch === 'studio'
-                  ? 'bg-[#ffeaa3] border-[#111] shadow-[0_0_18px_6px_rgba(212,175,55,0.8)]'
+                  ? 'bg-[#ffeaa3] border-[#111] shadow-[0_0_18px_6px_rgba(167, 139, 102,0.8)]'
                   : 'bg-[#ff2a1f] border-[#f5ecd8] shadow-[0_0_18px_6px_rgba(255,42,31,0.9)]'
               }`}
             />

@@ -28,7 +28,7 @@ export default function LoginForm() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background py-24 px-4">
       <div className="max-w-md w-full bg-surface border border-border rounded-3xl p-8 shadow-2xl">
-        <h2 className="text-3xl font-black text-brand-brown dark:text-brand-nude text-center mb-8">لوحة الإدارة</h2>
+        <h2 className="text-3xl font-black text-brand-brown dark:text-foreground text-center mb-8">لوحة الإدارة</h2>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-foreground/80 font-bold mb-2">البريد الإلكتروني المصرّح:</label>
@@ -45,7 +45,7 @@ export default function LoginForm() {
           <button 
             type="submit" 
             disabled={loading}
-            className="w-full bg-brand-gold text-brand-brown font-black py-4 rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50"
+            className="w-full bg-brand-gold text-brand-beige font-black py-4 rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50"
           >
             {loading ? 'جاري التحقق...' : 'دخول'}
           </button>

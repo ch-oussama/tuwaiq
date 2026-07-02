@@ -46,9 +46,6 @@ const DESIGN_SKILLS = [
   { text: "تصميم إعلانات", weight: 6 },
 ];
 
-const RADIUS = 200;
-const MAX_LINE_DIST = RADIUS * 1.1;
-
 interface Tag {
   text: string;
   weight: number;
@@ -57,16 +54,16 @@ interface Tag {
   z: number;
 }
 
-function initTags(skills: {text: string, weight: number}[]): Tag[] {
+function initTags(skills: {text: string, weight: number}[], radius: number): Tag[] {
   return skills.map((skill, i) => {
     const phi = Math.acos(-1 + (2 * i) / skills.length);
     const theta = Math.sqrt(skills.length * Math.PI) * phi;
     return {
       text: skill.text,
       weight: skill.weight,
-      x: RADIUS * Math.sin(phi) * Math.cos(theta),
-      y: RADIUS * Math.sin(phi) * Math.sin(theta),
-      z: RADIUS * Math.cos(phi),
+      x: radius * Math.sin(phi) * Math.cos(theta),
+      y: radius * Math.sin(phi) * Math.sin(theta),
+      z: radius * Math.cos(phi),
     };
   });
 }
@@ -87,16 +84,21 @@ function dist3d(a: Tag, b: Tag) {
 export default function DesignGlobe() {
   const { branch } = useBranch();
   const currentSkills = branch === 'studio' ? STUDIO_SKILLS : DESIGN_SKILLS;
+  
+  const radius = 170;
+  const size = 480;
+  const maxLineDist = radius * 1.1;
+
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const labelsRef = useRef<HTMLDivElement>(null);
-  const tagsRef = useRef<Tag[]>(initTags(currentSkills));
+  const tagsRef = useRef<Tag[]>(initTags(currentSkills, radius));
   const mouseRef = useRef({ x: 0, y: 0 });
   const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
-    tagsRef.current = initTags(currentSkills);
-  }, [branch]);
+    tagsRef.current = initTags(currentSkills, radius);
+  }, [branch, radius, currentSkills]);
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
     const rect = containerRef.current?.getBoundingClientRect();
@@ -119,7 +121,7 @@ export default function DesignGlobe() {
     const labels = labelsRef.current;
     if (!canvas || !labels) return;
 
-    const SIZE = 520;
+    const SIZE = size;
     const CX = SIZE / 2;
     const CY = SIZE / 2;
     canvas.width = SIZE;
@@ -137,7 +139,7 @@ export default function DesignGlobe() {
         font-weight: 900;
         font-family: inherit;
         white-space: nowrap;
-        color: ${branch === 'studio' ? '#D4AF37' : '#2d1a12'};
+        color: ${branch === 'studio' ? '#a78b66' : '#2d1a12'};
         transition: color 0.2s;
         transform-origin: center;
         cursor: default;
@@ -160,9 +162,12 @@ export default function DesignGlobe() {
       tagsRef.current = t;
 
       const projected = t.map(tag => {
-        const scale = (RADIUS + tag.z) / (2 * RADIUS);
+        const scale = (radius + tag.z) / (2 * radius);
         const alpha = 0.18 + scale * 0.82;
-        const fontSize = 12 + (tag.weight / 9) * 8 + scale * 6;
+        const baseFontSize = 9;
+        const fontScale = 4;
+        const weightScale = 6;
+        const fontSize = baseFontSize + (tag.weight / 9) * weightScale + scale * fontScale;
         return { tag, px: tag.x, py: tag.y, pz: tag.z, alpha, fontSize, scale };
       });
 
@@ -175,8 +180,8 @@ export default function DesignGlobe() {
           const a = projected[i];
           const b = projected[j];
           const d = dist3d(a.tag, b.tag);
-          if (d < MAX_LINE_DIST) {
-            const proximity = (MAX_LINE_DIST - d) / MAX_LINE_DIST;
+          if (d < maxLineDist) {
+            const proximity = (maxLineDist - d) / maxLineDist;
             const depthAlpha = (Math.min(a.alpha, b.alpha) - 0.18) / 0.82;
             const lineAlpha = proximity * 0.5 + depthAlpha * 0.2;
 
@@ -190,7 +195,7 @@ export default function DesignGlobe() {
             const len = Math.sqrt(dx * dx + dy * dy) || 1;
             const bow = 1.35;
             const targetDist = len * bow;
-            const maxDist = RADIUS * 0.96;
+            const maxDist = radius * 0.96;
             const finalDist = Math.min(targetDist, maxDist);
             const cpx = CX + (dx / len) * finalDist;
             const cpy = CY + (dy / len) * finalDist;
@@ -198,7 +203,7 @@ export default function DesignGlobe() {
             ctx.beginPath();
             ctx.moveTo(ax, ay);
             ctx.quadraticCurveTo(cpx, cpy, bx, by);
-            ctx.strokeStyle = branch === "studio" ? `rgba(212, 175, 55, ${Math.min(lineAlpha, 0.35)})` : `rgba(92, 26, 22, ${Math.min(lineAlpha, 0.45)})`;
+            ctx.strokeStyle = branch === "studio" ? `rgba(167, 139, 102, ${Math.min(lineAlpha, 0.35)})` : `rgba(92, 26, 22, ${Math.min(lineAlpha, 0.45)})`;
             ctx.lineWidth = 1.0;
             ctx.stroke();
           }
@@ -211,8 +216,8 @@ export default function DesignGlobe() {
         span.style.transform = `translate(calc(-50% + ${px}px), calc(-50% + ${py}px))`;
         span.style.fontSize = `${fontSize}px`;
         span.style.opacity = String(alpha);
-        span.style.color = branch === "studio" ? (tag.z > 0 ? "#111" : "#555") : (tag.z > 0 ? "#2d1a12" : "#6b3a32");
-        span.style.zIndex = String(Math.round(tag.z + RADIUS));
+        span.style.color = branch === "studio" ? (tag.z > 0 ? "#a78b66" : "rgba(167, 139, 102, 0.4)") : (tag.z > 0 ? "#2d1a12" : "#6b3a32");
+        span.style.zIndex = String(Math.round(tag.z + radius));
       });
 
       rafRef.current = requestAnimationFrame(animate);
@@ -223,7 +228,7 @@ export default function DesignGlobe() {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       spans.forEach(s => s.remove());
     };
-  }, [branch]);
+  }, [branch, radius, size, maxLineDist, currentSkills]);
 
   return (
     <section className="relative py-24 px-6 z-20 overflow-hidden">
@@ -235,7 +240,7 @@ export default function DesignGlobe() {
           transition={{ duration: 0.8 }}
           className="text-center mb-12"
         >
-          <h2 className={`text-xs font-black ${branch === 'studio' ? 'text-[#D4AF37]' : 'text-[#5c1a16]'} tracking-[0.3em] uppercase mb-4`}>
+          <h2 className={`text-xs font-black ${branch === 'studio' ? 'text-[#a78b66]' : 'text-[#5c1a16]'} tracking-[0.3em] uppercase mb-4`}>
             {branch === 'studio' ? 'تخصصاتنا التقنية' : 'تخصصاتنا'}
           </h2>
           <h3 className={`text-4xl md:text-5xl font-black ${branch === 'studio' ? 'text-white' : 'text-[#2d1a12]'}`}>
@@ -249,16 +254,16 @@ export default function DesignGlobe() {
         <div
           ref={containerRef}
           className="relative mx-auto"
-          style={{ width: 520, height: 520, maxWidth: "100%" }}
+          style={{ width: size, height: size, maxWidth: "100%" }}
         >
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className={`w-72 h-72 rounded-full ${branch === 'studio' ? 'bg-[#D4AF37]/10' : 'bg-[#5c1a16]/6'} blur-3xl`} />
+            <div className={`w-72 h-72 rounded-full ${branch === 'studio' ? 'bg-[#a78b66]/10' : 'bg-[#5c1a16]/6'} blur-3xl`} />
           </div>
 
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div
-              className={`rounded-full border ${branch === 'studio' ? 'border-[#D4AF37]/20' : 'border-[#5c1a16]/12'}`}
-              style={{ width: RADIUS * 2, height: RADIUS * 2 }}
+              className={`rounded-full border ${branch === 'studio' ? 'border-[#a78b66]/20' : 'border-[#5c1a16]/12'}`}
+              style={{ width: radius * 2, height: radius * 2 }}
             />
           </div>
 
@@ -275,7 +280,7 @@ export default function DesignGlobe() {
           />
 
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-50">
-            <div className={`w-3 h-3 rounded-full ${branch === 'studio' ? 'bg-[#D4AF37] shadow-[0_0_14px_6px_rgba(212,175,55,0.4)]' : 'bg-[#5c1a16] shadow-[0_0_14px_6px_rgba(92,26,22,0.55)]'}`} />
+            <div className={`w-3 h-3 rounded-full ${branch === 'studio' ? 'bg-[#a78b66] shadow-[0_0_14px_6px_rgba(167, 139, 102,0.4)]' : 'bg-[#5c1a16] shadow-[0_0_14px_6px_rgba(92,26,22,0.55)]'}`} />
           </div>
         </div>
       </div>

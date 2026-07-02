@@ -27,8 +27,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // أضف أي إيميلات إدارية جديدة هنا داخل هذه القائمة
   const adminEmails = [
+    "tuwaiqstudio2026@gmail.com",
     "godiabout57@gmail.com",
-    "abofilah86@gmail.com",
     "kalder.gg@gmail.com"
   ];
 

@@ -84,7 +84,7 @@ export default function Navbar() {
               <span
                 className="text-2xl font-black tracking-tight whitespace-nowrap hidden sm:block text-foreground"
               >
-                Tuwaiq<span className="text-brand-gold">{branch === 'design' ? 'Design' : 'Studio'}</span>
+                Tuwaiq <span className="text-brand-gold">{branch === 'design' ? 'Design' : 'Studio'}</span>
               </span>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img

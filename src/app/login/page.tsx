@@ -29,9 +29,7 @@ export default function LoginPage() {
 
     try {
       const result = await signInWithPopup(auth, googleProvider);
-      const user = result.user;
-      const userEmail = user.email || '';
-
+      const userEmail = result.user.email || '';
       if (userEmail.toLowerCase().trim() === ADMIN_EMAIL.toLowerCase()) {
         document.cookie = 'admin_auth=true; path=/; max-age=86400';
         router.push('/admin');
@@ -40,11 +38,11 @@ export default function LoginPage() {
       }
     } catch (err: any) {
       console.error(err);
-      if (err.code === 'auth/popup-closed-by-user') {
-        setError(t(lang, 'login.failed') + t(lang, 'login.cancelled'));
-      } else {
-        setError(t(lang, 'login.failed') + t(lang, 'login.try_again'));
+      if (err?.code === 'auth/popup-closed-by-user') {
+        setLoading(false);
+        return;
       }
+      setError(t(lang, 'login.failed') + ' ' + (err?.code || err?.message || t(lang, 'login.try_again')));
       setLoading(false);
     }
   }

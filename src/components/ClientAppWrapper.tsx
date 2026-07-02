@@ -22,7 +22,7 @@ export default function ClientAppWrapper({ children }: { children: React.ReactNo
         <div 
           className="fixed inset-0 pointer-events-none -z-10" 
           style={{ 
-            backgroundImage: 'url(/image.png)', 
+            backgroundImage: 'url(/.png)', 
             backgroundSize: 'cover', 
             backgroundPosition: 'center', 
             backgroundAttachment: 'fixed',

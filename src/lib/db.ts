@@ -13,7 +13,7 @@ export interface Package {
   title: string;
   description: string;
   shortDescription: string;
-  price: number;
+  price: string | number;
   thumbnailUrl: string;
   images: string[];
   features: string[];

@@ -3,10 +3,9 @@ import { Tajawal } from "next/font/google";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import GeminiWidget from "@/components/GeminiWidget";
-import ScrollProgress from "@/components/ScrollProgress";
-
-import { AuthProvider } from "@/lib/AuthContext";
+import BackgroundLayer from "@/components/BackgroundLayer";
 import { LenisProvider } from "@/lib/ScrollContext";
+import { AuthProvider } from "@/lib/AuthContext";
 import { BranchProvider } from "@/lib/BranchContext";
 import { LanguageProvider } from "@/lib/LanguageContext";
 import ClientAppWrapper from "@/components/ClientAppWrapper";
@@ -22,11 +21,9 @@ export const metadata: Metadata = {
   title: "Tuwaiq Studio | أستوديو طويق للخدمات الرقمية",
   description: "خدمات رقمية فاخرة، تصميم وتطوير بأعلى معايير الجودة.",
   icons: {
-    icon: [
-      { url: "/logo design.webp", type: "image/webp" },
-    ],
-    apple: "/logo design.webp",
-    shortcut: "/logo design.webp",
+    icon: "/logo.png",
+    apple: "/logo.png",
+    shortcut: "/logo.png",
   }
 };
 
@@ -40,24 +37,24 @@ export default function RootLayout({
       className={`${tajawal.variable} antialiased dark`}
       suppressHydrationWarning
     >
-      <body className="flex flex-col min-h-screen text-foreground bg-transparent font-sans">
-        <ScrollProgress />
-        <LanguageProvider>
-          <AuthProvider>
+      <body className="font-sans min-h-screen flex flex-col transition-colors duration-500 bg-background text-foreground" suppressHydrationWarning>
+          <LenisProvider>
             <BranchProvider>
+              <BackgroundLayer />
+              <LanguageProvider>
+                <AuthProvider>
               <ClientAppWrapper>
-                <LenisProvider>
-                  <Navbar />
-                  <main className="flex-grow pt-20 relative z-10">
-                    {children}
-                  </main>
-                  <Footer />
-                </LenisProvider>
-              </ClientAppWrapper>
+              <Navbar />
+              <main className="flex-grow pt-20 relative">
+                {children}
+              </main>
+              <Footer />
               <GeminiWidget />
+            </ClientAppWrapper>
+                </AuthProvider>
+              </LanguageProvider>
             </BranchProvider>
-          </AuthProvider>
-        </LanguageProvider>
+          </LenisProvider>
       </body>
     </html>
   );

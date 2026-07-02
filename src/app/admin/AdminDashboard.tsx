@@ -70,7 +70,7 @@ export default function AdminDashboard({ initialPackages, initialProjects, initi
       title: formData.get('title'),
       shortDescription: formData.get('shortDescription'),
       description: formData.get('description'),
-      price: Number(formData.get('price')),
+      price: formData.get('price') as string,
       branch: formData.get('branch'),
       thumbnailUrl: formData.get('thumbnailUrl'),
       images: (formData.get('images') as string).split(',').map(s => s.trim()).filter(s => s),
@@ -156,7 +156,7 @@ export default function AdminDashboard({ initialPackages, initialProjects, initi
       title: formData.get('title'),
       shortDescription: formData.get('shortDescription'),
       description: formData.get('description'),
-      price: Number(formData.get('price')),
+      price: formData.get('price') as string,
       branch: formData.get('branch'),
       thumbnailUrl: formData.get('thumbnailUrl'),
       images: (formData.get('images') as string).split(',').map(s => s.trim()).filter(s => s),
@@ -555,7 +555,7 @@ export default function AdminDashboard({ initialPackages, initialProjects, initi
         {/* Header */}
         <div className="flex justify-between items-center mb-10">
           <div>
-            <h1 className="text-4xl font-black text-brand-brown dark:text-brand-nude">لوحة التحكم</h1>
+            <h1 className="text-4xl font-black text-brand-brown dark:text-brand-gold">لوحة التحكم</h1>
             <p className="text-foreground/60 mt-1">إدارة باقات وتقييمات المتجر</p>
           </div>
           <button
@@ -570,7 +570,7 @@ export default function AdminDashboard({ initialPackages, initialProjects, initi
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
           <div className="bg-surface border border-border rounded-2xl p-5 shadow-sm">
             <p className="text-foreground/60 text-sm font-bold mb-1">إجمالي الباقات</p>
-            <p className="text-4xl font-black text-brand-brown dark:text-brand-nude">{initialPackages.length}</p>
+            <p className="text-4xl font-black text-brand-brown dark:text-brand-gold">{initialPackages.length}</p>
           </div>
           <div className="bg-surface border border-border rounded-2xl p-5 shadow-sm">
             <p className="text-foreground/60 text-sm font-bold mb-1">إجمالي التقييمات</p>
@@ -580,8 +580,8 @@ export default function AdminDashboard({ initialPackages, initialProjects, initi
           </div>
           <div className="bg-surface border border-border rounded-2xl p-5 shadow-sm">
             <p className="text-foreground/60 text-sm font-bold mb-1">متوسط السعر</p>
-            <p className="text-4xl font-black text-brand-brown dark:text-brand-nude">
-              ${initialPackages.length > 0 ? Math.round(initialPackages.reduce((sum, p) => sum + p.price, 0) / initialPackages.length) : 0}
+            <p className="text-4xl font-black text-brand-brown dark:text-brand-gold">
+              ${initialPackages.length > 0 ? Math.round(initialPackages.reduce((sum, p) => sum + (parseFloat(p.price as string) || 0), 0) / initialPackages.length) : 0}
             </p>
           </div>
         </div>
@@ -608,7 +608,7 @@ export default function AdminDashboard({ initialPackages, initialProjects, initi
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
             {/* Add Form */}
             <div className="lg:col-span-2 bg-surface border border-border rounded-3xl p-6 shadow-xl h-fit">
-              <h2 className="text-xl font-black mb-5 flex items-center gap-2 text-brand-brown dark:text-brand-nude">
+              <h2 className="text-xl font-black mb-5 flex items-center gap-2 text-brand-brown dark:text-brand-gold">
                 <Plus className="text-brand-gold" size={20} /> إضافة باقة جديدة
               </h2>
               <form onSubmit={handleAddPackage} className="space-y-3.5">
@@ -633,8 +633,8 @@ export default function AdminDashboard({ initialPackages, initialProjects, initi
                   <textarea name="description" required rows={3} className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-gold transition-colors resize-none" />
                 </div>
                 <div>
-                  <label className="block text-xs font-black mb-1 text-foreground/70 uppercase tracking-wide">السعر ($)</label>
-                  <input name="price" type="number" min="1" required className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-gold transition-colors" />
+                  <label className="block text-xs font-black mb-1 text-foreground/70 uppercase tracking-wide">السعر (أو الأسعار)</label>
+                  <input name="price" type="text" required placeholder="مثال: تبدأ من 50$ - أو 50$ لـ 100$" className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-gold transition-colors" />
                 </div>
                 <div>
                   <label className="block text-xs font-black mb-1 text-foreground/70 uppercase tracking-wide">رابط الصورة الرئيسية</label>
@@ -651,7 +651,7 @@ export default function AdminDashboard({ initialPackages, initialProjects, initi
                 <button
                   disabled={loading}
                   type="submit"
-                  className="w-full bg-brand-gold text-brand-brown font-black py-3 rounded-xl hover:brightness-105 transition disabled:opacity-50 mt-2 shadow-md"
+                  className="w-full bg-brand-gold text-brand-beige font-black py-3 rounded-xl hover:brightness-105 transition disabled:opacity-50 mt-2 shadow-md"
                 >
                   {loading ? 'جاري الحفظ...' : 'حفظ الباقة'}
                 </button>
@@ -668,9 +668,9 @@ export default function AdminDashboard({ initialPackages, initialProjects, initi
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={pkg.thumbnailUrl} alt="" className="w-16 h-16 rounded-xl object-cover border border-border" />
                       <div>
-                        <h3 className="font-black text-base text-brand-brown dark:text-brand-nude">{pkg.title}</h3>
+                        <h3 className="font-black text-base text-brand-brown dark:text-brand-gold">{pkg.title}</h3>
                         <p className="text-sm text-foreground/60 font-medium flex items-center gap-2">
-                          {pkg.price}$ 
+                          {pkg.price}
                           <span className="bg-brand-gold/20 text-brand-gold px-2 py-0.5 rounded text-xs font-bold">{pkg.branch === 'design' ? 'Design' : 'Studio'}</span>
                         </p>
                         <p className="text-xs text-foreground/40 mt-0.5">{pkg.reviews?.length || 0} تقييم</p>
@@ -724,7 +724,7 @@ export default function AdminDashboard({ initialPackages, initialProjects, initi
                 onClick={e => e.stopPropagation()}
               >
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-black text-brand-brown dark:text-brand-nude flex items-center gap-2">
+                  <h2 className="text-xl font-black text-brand-brown dark:text-brand-gold flex items-center gap-2">
                     <Edit2 className="text-brand-gold" size={20} /> تعديل الباقة
                   </h2>
                   <button onClick={() => setEditingPackage(null)} className="p-2 rounded-full hover:bg-surface-hover transition-colors">
@@ -753,8 +753,8 @@ export default function AdminDashboard({ initialPackages, initialProjects, initi
                     <textarea name="description" defaultValue={editingPackage.description} required rows={3} className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-gold transition-colors resize-none" />
                   </div>
                   <div>
-                    <label className="block text-xs font-black mb-1 text-foreground/70 uppercase tracking-wide">السعر ($)</label>
-                    <input name="price" type="number" min="1" defaultValue={editingPackage.price} required className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-gold transition-colors" />
+                    <label className="block text-xs font-black mb-1 text-foreground/70 uppercase tracking-wide">السعر (أو الأسعار)</label>
+                    <input name="price" type="text" defaultValue={editingPackage.price} required className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-gold transition-colors" />
                   </div>
                   <div>
                     <label className="block text-xs font-black mb-1 text-foreground/70 uppercase tracking-wide">رابط الصورة الرئيسية</label>
@@ -769,7 +769,7 @@ export default function AdminDashboard({ initialPackages, initialProjects, initi
                     <textarea name="features" defaultValue={editingPackage.features?.join('\n')} required rows={3} className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-brand-gold transition-colors resize-none" />
                   </div>
                   <div className="flex gap-3 pt-2">
-                    <button type="submit" disabled={loading} className="flex-1 bg-brand-gold text-brand-brown font-black py-3 rounded-xl hover:brightness-105 transition disabled:opacity-50 shadow-md">
+                    <button type="submit" disabled={loading} className="flex-1 bg-brand-gold text-brand-beige font-black py-3 rounded-xl hover:brightness-105 transition disabled:opacity-50 shadow-md">
                       {loading ? 'جاري الحفظ...' : 'حفظ التعديلات'}
                     </button>
                     <button type="button" onClick={() => setEditingPackage(null)} className="px-6 py-3 rounded-xl border border-border text-foreground font-bold hover:bg-surface-hover transition-colors">
@@ -786,7 +786,7 @@ export default function AdminDashboard({ initialPackages, initialProjects, initi
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
             {/* Add Review Form */}
             <div className="lg:col-span-2 bg-surface border border-border rounded-3xl p-6 shadow-xl h-fit">
-              <h2 className="text-xl font-black mb-5 flex items-center gap-2 text-brand-brown dark:text-brand-nude">
+              <h2 className="text-xl font-black mb-5 flex items-center gap-2 text-brand-brown dark:text-brand-gold">
                 <Star className="text-brand-gold" size={20} /> إضافة تقييم
               </h2>
               <form onSubmit={handleAddReview} className="space-y-4">
@@ -830,7 +830,7 @@ export default function AdminDashboard({ initialPackages, initialProjects, initi
                 <button
                   disabled={reviewLoading || !selectedPkg}
                   type="submit"
-                  className="w-full bg-brand-gold text-brand-brown font-black py-3 rounded-xl hover:brightness-105 transition disabled:opacity-50 shadow-md"
+                  className="w-full bg-brand-gold text-brand-beige font-black py-3 rounded-xl hover:brightness-105 transition disabled:opacity-50 shadow-md"
                 >
                   {reviewLoading ? 'جاري الحفظ...' : 'نشر التقييم'}
                 </button>
@@ -855,7 +855,7 @@ export default function AdminDashboard({ initialPackages, initialProjects, initi
                       </button>
                       <div className="flex items-center justify-between mb-3">
                         <div>
-                          <p className="font-black text-brand-brown dark:text-brand-nude">{review.author}</p>
+                          <p className="font-black text-brand-brown dark:text-brand-gold">{review.author}</p>
                           <p className="text-xs text-foreground/40">{pkg.title}</p>
                         </div>
                         <div className="flex gap-1 text-brand-gold">
@@ -884,7 +884,7 @@ export default function AdminDashboard({ initialPackages, initialProjects, initi
               const sections = termsData[branch];
               return (
                 <div key={branch} className="bg-surface border border-border rounded-3xl p-6 shadow-xl">
-                  <h2 className="text-xl font-black mb-5 flex items-center gap-2 text-brand-brown dark:text-brand-nude">
+                  <h2 className="text-xl font-black mb-5 flex items-center gap-2 text-brand-brown dark:text-brand-gold">
                     <FileText className="text-brand-gold" size={20} /> الشروط والأحكام - {label}
                   </h2>
                   <div className="space-y-4">
@@ -932,7 +932,7 @@ export default function AdminDashboard({ initialPackages, initialProjects, initi
               <button
                 onClick={handleSaveTerms}
                 disabled={termsLoading}
-                className="px-10 py-3.5 bg-brand-gold text-brand-brown font-black rounded-xl hover:brightness-105 transition disabled:opacity-50 shadow-md text-lg"
+                className="px-10 py-3.5 bg-brand-gold text-brand-beige font-black rounded-xl hover:brightness-105 transition disabled:opacity-50 shadow-md text-lg"
               >
                 {termsLoading ? 'جاري الحفظ...' : 'حفظ جميع التغييرات'}
               </button>
@@ -947,7 +947,7 @@ export default function AdminDashboard({ initialPackages, initialProjects, initi
               const sections = privacyData[branch];
               return (
                 <div key={branch} className="bg-surface border border-border rounded-3xl p-6 shadow-xl">
-                  <h2 className="text-xl font-black mb-5 flex items-center gap-2 text-brand-brown dark:text-brand-nude">
+                  <h2 className="text-xl font-black mb-5 flex items-center gap-2 text-brand-brown dark:text-brand-gold">
                     <Shield className="text-brand-gold" size={20} /> سياسة الخصوصية - {label}
                   </h2>
                   <div className="space-y-4">
@@ -995,7 +995,7 @@ export default function AdminDashboard({ initialPackages, initialProjects, initi
               <button
                 onClick={handleSavePrivacy}
                 disabled={privacyLoading}
-                className="px-10 py-3.5 bg-brand-gold text-brand-brown font-black rounded-xl hover:brightness-105 transition disabled:opacity-50 shadow-md text-lg"
+                className="px-10 py-3.5 bg-brand-gold text-brand-beige font-black rounded-xl hover:brightness-105 transition disabled:opacity-50 shadow-md text-lg"
               >
                 {privacyLoading ? 'جاري الحفظ...' : 'حفظ جميع التغييرات'}
               </button>
@@ -1006,7 +1006,7 @@ export default function AdminDashboard({ initialPackages, initialProjects, initi
         {activeTab === 'projects' && (
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
             <div className="lg:col-span-2 bg-surface border border-border rounded-3xl p-6 shadow-xl h-fit">
-              <h2 className="text-xl font-black mb-5 flex items-center gap-2 text-brand-brown dark:text-brand-nude">
+              <h2 className="text-xl font-black mb-5 flex items-center gap-2 text-brand-brown dark:text-brand-gold">
                 <Plus className="text-brand-gold" size={20} /> إضافة مشروع جديد
               </h2>
               <form onSubmit={handleAddProject} className="space-y-3.5">
@@ -1064,7 +1064,7 @@ export default function AdminDashboard({ initialPackages, initialProjects, initi
                   </p>
                 </div>
 
-                <button type="submit" disabled={projectLoading} className="w-full mt-4 bg-brand-gold text-brand-brown font-black py-4 rounded-xl hover:bg-brand-brown hover:text-brand-gold transition-colors disabled:opacity-50">
+                <button type="submit" disabled={projectLoading} className="w-full mt-4 bg-brand-gold text-brand-beige font-black py-4 rounded-xl hover:bg-brand-beige hover:text-brand-gold transition-colors disabled:opacity-50">
                   {projectLoading ? 'جاري الحفظ والإنشار...' : '🚀 نشر المشروع'}
                 </button>
               </form>
@@ -1080,7 +1080,7 @@ export default function AdminDashboard({ initialPackages, initialProjects, initi
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={proj.imageUrl} alt={proj.title} className="w-20 h-20 rounded-xl object-cover" />
                     <div className="flex-1">
-                      <p className="font-black text-brand-brown dark:text-brand-nude text-xl">{proj.title}</p>
+                      <p className="font-black text-brand-brown dark:text-brand-gold text-xl">{proj.title}</p>
                       <div className="flex items-center gap-2 mb-2">
                         <span className="text-sm font-bold text-brand-gold">{proj.category}</span>
                         <span className="bg-brand-gold/20 text-brand-gold px-2 py-0.5 rounded text-xs font-bold">{proj.branch === 'design' ? 'Design' : 'Studio'}</span>
@@ -1127,7 +1127,7 @@ export default function AdminDashboard({ initialPackages, initialProjects, initi
                 onClick={e => e.stopPropagation()}
               >
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-black text-brand-brown dark:text-brand-nude flex items-center gap-2">
+                  <h2 className="text-xl font-black text-brand-brown dark:text-brand-gold flex items-center gap-2">
                     <Edit2 className="text-brand-gold" size={20} /> تعديل المشروع
                   </h2>
                   <button onClick={() => setEditingProject(null)} className="p-2 rounded-full hover:bg-surface-hover transition-colors">
@@ -1168,7 +1168,7 @@ export default function AdminDashboard({ initialPackages, initialProjects, initi
                     <input name="imageUrl" defaultValue={editingProject.imageUrl} dir="ltr" className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm text-left focus:outline-none focus:border-brand-gold transition-colors" />
                   </div>
                   <div className="flex gap-3 pt-2">
-                    <button type="submit" disabled={projectLoading} className="flex-1 bg-brand-gold text-brand-brown font-black py-3 rounded-xl hover:brightness-105 transition disabled:opacity-50 shadow-md">
+                    <button type="submit" disabled={projectLoading} className="flex-1 bg-brand-gold text-brand-beige font-black py-3 rounded-xl hover:brightness-105 transition disabled:opacity-50 shadow-md">
                       {projectLoading ? 'جاري الحفظ...' : 'حفظ التعديلات'}
                     </button>
                     <button type="button" onClick={() => setEditingProject(null)} className="px-6 py-3 rounded-xl border border-border text-foreground font-bold hover:bg-surface-hover transition-colors">
@@ -1184,7 +1184,7 @@ export default function AdminDashboard({ initialPackages, initialProjects, initi
         {activeTab === 'custom_options' && (
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
             <div className="lg:col-span-2 bg-surface border border-border rounded-3xl p-6 shadow-xl h-fit">
-              <h2 className="text-xl font-black mb-5 flex items-center gap-2 text-brand-brown dark:text-brand-nude">
+              <h2 className="text-xl font-black mb-5 flex items-center gap-2 text-brand-brown dark:text-brand-gold">
                 <Plus className="text-brand-gold" size={20} /> إضافة خيار تخصيص
               </h2>
               <form onSubmit={handleAddOption} className="space-y-3.5">
@@ -1208,7 +1208,7 @@ export default function AdminDashboard({ initialPackages, initialProjects, initi
                   <label className="block text-xs font-black mb-1 text-foreground/70">رابط صورة (اختياري)</label>
                   <input value={optionImage} onChange={e => setOptionImage(e.target.value)} dir="ltr" className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm text-left focus:outline-none focus:border-brand-gold transition-colors" />
                 </div>
-                <button type="submit" disabled={optionLoading} className="w-full bg-brand-gold text-brand-brown font-black py-3 rounded-xl hover:brightness-105 transition disabled:opacity-50 shadow-md">
+                <button type="submit" disabled={optionLoading} className="w-full bg-brand-gold text-brand-beige font-black py-3 rounded-xl hover:brightness-105 transition disabled:opacity-50 shadow-md">
                   {optionLoading ? 'جاري الحفظ...' : 'إضافة الخيار'}
                 </button>
               </form>
@@ -1267,7 +1267,7 @@ export default function AdminDashboard({ initialPackages, initialProjects, initi
                 onClick={e => e.stopPropagation()}
               >
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-black text-brand-brown dark:text-brand-nude flex items-center gap-2">
+                  <h2 className="text-xl font-black text-brand-brown dark:text-brand-gold flex items-center gap-2">
                     <Edit2 className="text-brand-gold" size={20} /> تعديل الخيار
                   </h2>
                   <button onClick={() => setEditingOption(null)} className="p-2 rounded-full hover:bg-surface-hover transition-colors">
@@ -1296,7 +1296,7 @@ export default function AdminDashboard({ initialPackages, initialProjects, initi
                     <input name="imageUrl" defaultValue={editingOption.imageUrl || ''} dir="ltr" className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm text-left focus:outline-none focus:border-brand-gold transition-colors" />
                   </div>
                   <div className="flex gap-3 pt-2">
-                    <button type="submit" disabled={optionLoading} className="flex-1 bg-brand-gold text-brand-brown font-black py-3 rounded-xl hover:brightness-105 transition disabled:opacity-50 shadow-md">
+                    <button type="submit" disabled={optionLoading} className="flex-1 bg-brand-gold text-brand-beige font-black py-3 rounded-xl hover:brightness-105 transition disabled:opacity-50 shadow-md">
                       {optionLoading ? 'جاري الحفظ...' : 'حفظ التعديلات'}
                     </button>
                     <button type="button" onClick={() => setEditingOption(null)} className="px-6 py-3 rounded-xl border border-border text-foreground font-bold hover:bg-surface-hover transition-colors">
@@ -1383,7 +1383,7 @@ export default function AdminDashboard({ initialPackages, initialProjects, initi
                 <textarea value={faqAnswer} onChange={e => setFaqAnswer(e.target.value)} required rows={3} className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-gold transition-colors resize-none" placeholder="أدخل الإجابة" />
               </div>
               <div className="flex gap-3">
-                <button type="submit" disabled={faqLoading} className="flex-1 bg-brand-gold text-brand-brown font-black py-3 rounded-xl hover:brightness-105 transition disabled:opacity-50 shadow-md">
+                <button type="submit" disabled={faqLoading} className="flex-1 bg-brand-gold text-brand-beige font-black py-3 rounded-xl hover:brightness-105 transition disabled:opacity-50 shadow-md">
                   {faqLoading ? 'جاري الحفظ...' : editingFaq ? 'حفظ التعديلات' : 'إضافة سؤال'}
                 </button>
                 {editingFaq && (

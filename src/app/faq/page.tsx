@@ -60,7 +60,7 @@ export default function FAQPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 key={faq.id}
-                className={`border rounded-2xl overflow-hidden transition-all duration-300 glass ${isOpen ? 'border-brand-gold shadow-[0_0_20px_rgba(240,192,64,0.1)]' : 'border-border hover:border-brand-gold/50'}`}
+                className={`border rounded-2xl overflow-hidden transition-all duration-300 glass ${isOpen ? 'border-brand-gold shadow-[0_0_20px_rgba(167, 139, 102,0.1)]' : 'border-border hover:border-brand-gold/50'}`}
               >
                 <button
                   onClick={() => toggleFAQ(index)}

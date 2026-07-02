@@ -2,157 +2,203 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import { ExternalLink } from 'lucide-react';
-import { useState } from 'react';
+import { ExternalLink, Sparkles } from 'lucide-react';
+import { useState, useMemo } from 'react';
 import type { Project } from '@/lib/db';
 import { useBranch } from '@/lib/BranchContext';
 import { useLang } from '@/lib/LanguageContext';
 import { t } from '@/lib/translations';
+import { ThreeDPhotoCarousel } from "@/components/ui/3d-carousel";
 
-const categories = [
-  { key: 'all', labelKey: 'projects.all' },
-  { key: 'برمجة', labelKey: 'projects.coding' },
-  { key: 'تصميم جرافيك', labelKey: 'projects.graphic' },
-  { key: '3D design', labelKey: '3D design' },
-  { key: 'لوقو', labelKey: 'projects.logo' },
-];
+const branchConfig = {
+  studio: {
+    accent: '#a78b66',
+    textMuted: 'rgba(255,255,255,0.5)',
+    cardBg: '#1a1a1a',
+    border: 'rgba(167, 139, 102,0.25)',
+    borderHover: '#a78b66',
+    overlay: 'rgba(0,0,0,0.85)',
+    bg: 'from-[#0a0a0a] via-[#111] to-[#0a0a0a]',
+    headerText: '#fff',
+    cardText: '#f0f0f0',
+    cardMuted: 'rgba(255,255,255,0.45)',
+    overlayText: '#fff',
+    overlayMuted: 'rgba(255,255,255,0.7)',
+    tagBg: 'rgba(255,255,255,0.12)',
+    tagText: '#fff',
+    tagBorder: 'rgba(255,255,255,0.2)',
+    badgeText: '#111',
+    badgeBg: '#a78b66',
+    ctaText: '#111',
+    glow: 'rgba(167, 139, 102,0.06)',
+    shadow: '0 8px 30px rgba(0,0,0,0.4)',
+    shadowHover: '0 20px 60px rgba(167, 139, 102,0.2)',
+  },
+  design: {
+    accent: '#8B2020',
+    textMuted: 'rgba(74,53,48,0.5)',
+    cardBg: '#ffffff',
+    border: 'rgba(139,32,32,0.15)',
+    borderHover: '#8B2020',
+    overlay: 'rgba(139,32,32,0.93)',
+    bg: 'from-[#f5ecd8] via-[#f0e6d2] to-[#f5ecd8]',
+    headerText: '#2d1a12',
+    cardText: '#2d1a12',
+    cardMuted: 'rgba(45,26,18,0.45)',
+    overlayText: '#f5ecd8',
+    overlayMuted: 'rgba(245,236,216,0.75)',
+    tagBg: 'rgba(245,236,216,0.15)',
+    tagText: '#f5ecd8',
+    tagBorder: 'rgba(245,236,216,0.25)',
+    badgeText: '#f5ecd8',
+    badgeBg: '#8B2020',
+    ctaText: '#f5ecd8',
+    glow: 'rgba(139,32,32,0.05)',
+    shadow: '0 8px 30px rgba(74,53,48,0.1)',
+    shadowHover: '0 20px 60px rgba(139,32,32,0.15)',
+  },
+};
 
 export default function ProjectsClient({ projects }: { projects: Project[] }) {
   const [activeCategory, setActiveCategory] = useState('all');
   const { branch } = useBranch();
   const { lang } = useLang();
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
 
-  const branchProjects = projects.filter(p => !p.branch || p.branch === branch);
+  const isDesign = branch === 'design';
+  const cfg = isDesign ? branchConfig.design : branchConfig.studio;
 
-  const filteredProjects = activeCategory === 'all'
-    ? branchProjects
-    : branchProjects.filter(p => p.category === activeCategory);
+  const branchProjects = useMemo(() =>
+    projects.filter(p => p.branch === branch),
+    [projects, branch],
+  );
+
+  const allCategories = useMemo(() =>
+    Array.from(new Set(branchProjects.map(p => p.category).filter(Boolean))),
+    [branchProjects],
+  );
+
+  const filteredProjects = useMemo(() =>
+    activeCategory === 'all'
+      ? branchProjects
+      : branchProjects.filter(p => p.category === activeCategory),
+    [activeCategory, branchProjects],
+  );
 
   return (
-    <div className="min-h-screen bg-transparent py-24">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-16"
-        >
-          <h1 className="text-5xl md:text-7xl font-black text-brand-brown mb-4">
-            {t(lang, 'projects.title')}
-          </h1>
-          <p className="text-xl text-foreground/70 max-w-2xl mx-auto">
-            {t(lang, 'projects.subtitle')}
-          </p>
-          <div className="w-24 h-1 bg-brand-gold mx-auto mt-6 rounded-full" />
-        </motion.div>
+    <div className="min-h-screen relative overflow-hidden">
+      <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] rounded-full blur-[120px] pointer-events-none" style={{ background: cfg.glow }} />
+      <div className="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] rounded-full blur-[100px] pointer-events-none" style={{ background: cfg.glow }} />
 
-        {/* Category Filter */}
-        <div className="flex flex-wrap justify-center gap-3 mb-12">
-          {categories.map((cat, i) => {
-            const isActive = activeCategory === cat.key;
-            return (
-              <motion.button
-                key={cat.key}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.05 }}
-                onClick={() => setActiveCategory(cat.key)}
-                className={`px-6 py-2.5 rounded-full font-bold text-sm border-2 transition-all ${
-                  isActive
-                    ? 'bg-brand-brown text-brand-beige border-brand-brown shadow-md'
-                    : 'border-border text-foreground hover:border-brand-brown hover:text-brand-brown bg-surface'
-                }`}
-              >
-                {cat.labelKey === cat.key ? cat.labelKey : t(lang, cat.labelKey)}
-              </motion.button>
-            );
-          })}
-        </div>
-
-        {/* Projects Grid - Behance Style */}
-        <motion.div layout className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
-          <AnimatePresence>
-            {filteredProjects.map((project, i) => (
-              <Link
-                href={`/projects/${project.id}`}
-                key={project.id}
-                className="block break-inside-avoid group relative overflow-hidden rounded-3xl border border-border bg-surface shadow-md hover:shadow-2xl transition-all duration-500 cursor-pointer"
-              >
-                <motion.div
-                  layout
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ delay: i * 0.07 }}
-                >
-                  {/* Thumbnail */}
-                  <div className="overflow-hidden">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={project.imageUrl || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop'}
-                      alt={project.title}
-                      className="w-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    />
-                  </div>
-
-                  {/* Overlay on hover */}
-                  <div className="absolute inset-0 bg-brand-brown/0 group-hover:bg-brand-brown/80 transition-all duration-500 flex items-center justify-center">
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-center p-6">
-                      <h3 className="text-2xl font-black text-brand-beige mb-2">{project.title}</h3>
-                      <p className="text-brand-nude text-sm mb-4">{project.description}</p>
-                      <div className="flex flex-wrap justify-center gap-2 mb-4">
-                        {(project.tags || []).map(tag => (
-                          <span key={tag} className="bg-brand-gold/20 text-brand-gold border border-brand-gold/30 px-3 py-1 rounded-full text-xs font-bold">
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                      <div className="flex items-center gap-2 mx-auto px-5 py-2.5 bg-brand-gold text-brand-brown rounded-full font-black text-sm hover:scale-105 transition-transform w-max">
-                        {t(lang, 'projects.view_project')} <ExternalLink size={14} />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Category Badge */}
-                  <div className="absolute top-4 right-4">
-                    <span className="bg-brand-gold text-brand-brown px-3 py-1 rounded-full text-xs font-black shadow-md">
-                      {project.category}
-                    </span>
-                  </div>
-
-                  {/* Info below */}
-                  <div className="p-5 relative z-10 bg-surface">
-                    <h3 className="font-black text-lg text-brand-brown">{project.title}</h3>
-                    <p className="text-foreground/60 text-sm mt-1">{project.category}</p>
-                  </div>
-                </motion.div>
-              </Link>
-            ))}
-          </AnimatePresence>
-        </motion.div>
-
-        {filteredProjects.length === 0 && (
-          <div className="text-center py-24 text-foreground/50">
-            <p className="text-6xl mb-4">📂</p>
-            <p className="text-xl font-bold">{t(lang, 'projects.no_projects')}</p>
-          </div>
-        )}
-
-        {/* CTA */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          className="text-center mt-20"
-        >
-          <p className="text-xl text-foreground/70 mb-6">{t(lang, 'projects.have_project')}</p>
-          <Link
-            href="/packages"
-            className="inline-block px-10 py-4 bg-brand-brown text-brand-beige font-black text-lg rounded-full hover:scale-105 transition-transform shadow-xl"
+      <div className="relative z-10 py-28 px-4 sm:px-6">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
+            className="text-center mb-16"
           >
-            {t(lang, 'projects.start_project')}
-          </Link>
-        </motion.div>
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold tracking-widest mb-6"
+              style={{ background: `${cfg.accent}15`, color: cfg.accent, border: `1px solid ${cfg.accent}30` }}
+            >
+              <Sparkles size={12} />
+              {isDesign ? 'أعمالنا المميزة' : 'إبداعاتنا'}
+            </motion.div>
+
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black mb-4 leading-tight">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r" style={{
+                backgroundImage: isDesign
+                  ? 'linear-gradient(to right, #8B2020, #b22d2d)'
+                  : 'linear-gradient(to right, #a78b66, #f0d080)',
+              }}>
+                {t(lang, 'projects.title')}
+              </span>
+            </h1>
+            <p className="text-lg md:text-xl max-w-2xl mx-auto" style={{ color: cfg.textMuted }}>
+              {t(lang, 'projects.subtitle')}
+            </p>
+          </motion.div>
+
+          <div className="flex flex-wrap justify-center gap-2 mb-14">
+            <motion.button
+              key="all"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              onClick={() => setActiveCategory('all')}
+              className="relative px-5 py-2.5 rounded-full font-bold text-sm transition-all duration-300 overflow-hidden"
+              style={{
+                background: activeCategory === 'all' ? cfg.accent : `${cfg.accent}08`,
+                color: activeCategory === 'all' ? (isDesign ? '#f5ecd8' : '#111') : cfg.textMuted,
+                border: `1px solid ${activeCategory === 'all' ? cfg.accent : `${cfg.accent}20`}`,
+                boxShadow: activeCategory === 'all' ? `0 4px 20px ${cfg.accent}30` : 'none',
+              }}
+            >
+              {activeCategory === 'all' && (
+                <motion.div layoutId="activeTab" className="absolute inset-0" style={{ background: cfg.accent }} transition={{ type: 'spring', stiffness: 300, damping: 30 }} />
+              )}
+              <span className="relative z-10">{t(lang, 'projects.all')}</span>
+            </motion.button>
+
+            {allCategories.map((cat, i) => {
+              const isActive = activeCategory === cat;
+              return (
+                <motion.button
+                  key={cat}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.06, duration: 0.5 }}
+                  onClick={() => setActiveCategory(cat)}
+                  className="relative px-5 py-2.5 rounded-full font-bold text-sm transition-all duration-300 overflow-hidden"
+                  style={{
+                    background: isActive ? cfg.accent : `${cfg.accent}08`,
+                    color: isActive ? (isDesign ? '#f5ecd8' : '#111') : cfg.textMuted,
+                    border: `1px solid ${isActive ? cfg.accent : `${cfg.accent}20`}`,
+                    boxShadow: isActive ? `0 4px 20px ${cfg.accent}30` : 'none',
+                  }}
+                >
+                  {isActive && (
+                    <motion.div layoutId="activeTab" className="absolute inset-0" style={{ background: cfg.accent }} transition={{ type: 'spring', stiffness: 300, damping: 30 }} />
+                  )}
+                  <span className="relative z-10">{cat}</span>
+                </motion.button>
+              );
+            })}
+          </div>
+
+          <ThreeDPhotoCarousel projects={filteredProjects} />
+
+          {filteredProjects.length === 0 && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-32">
+              <div className="text-8xl mb-6 opacity-20">...</div>
+              <p className="text-2xl font-bold" style={{ color: cfg.textMuted }}>{t(lang, 'projects.no_projects')}</p>
+            </motion.div>
+          )}
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="text-center mt-20"
+          >
+            <p className="text-lg mb-6" style={{ color: cfg.textMuted }}>{t(lang, 'projects.have_project')}</p>
+            <Link
+              href="/packages"
+              className="inline-flex items-center gap-3 px-10 py-4 rounded-full font-black text-lg transition-all duration-300 hover:scale-105 group"
+              style={{
+                background: `linear-gradient(135deg, ${cfg.accent}, ${isDesign ? '#b22d2d' : '#f0d080'})`,
+                color: cfg.ctaText,
+                boxShadow: `0 10px 40px ${cfg.accent}30`,
+              }}
+            >
+              {t(lang, 'projects.start_project')}
+              <ExternalLink size={18} className="transition-transform group-hover:-translate-x-1" />
+            </Link>
+          </motion.div>
+        </div>
       </div>
     </div>
   );
