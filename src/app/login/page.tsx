@@ -7,9 +7,9 @@ import Link from 'next/link';
 import { signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '@/lib/firebase';
 import { useLang } from '@/lib/LanguageContext';
+import { useAuth } from '@/lib/AuthContext';
 import { t } from '@/lib/translations';
 
-const ADMIN_EMAIL = 'godiabout57@gmail.com';
 const COOLDOWN_MS = 2000;
 
 export default function LoginPage() {
@@ -17,7 +17,21 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const router = useRouter();
   const { lang } = useLang();
+  const { user, isAdmin, loading: authLoading } = useAuth();
   const lastClick = useRef(0);
+  const redirecting = useRef(false);
+
+  useEffect(() => {
+    if (!authLoading && user && !redirecting.current) {
+      redirecting.current = true;
+      if (isAdmin) {
+        document.cookie = 'admin_auth=true; path=/; max-age=86400';
+        router.push('/admin');
+      } else {
+        router.push('/');
+      }
+    }
+  }, [user, isAdmin, authLoading, router]);
 
   async function handleGoogleLogin() {
     const now = Date.now();
@@ -28,14 +42,8 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const userEmail = result.user.email || '';
-      if (userEmail.toLowerCase().trim() === ADMIN_EMAIL.toLowerCase()) {
-        document.cookie = 'admin_auth=true; path=/; max-age=86400';
-        router.push('/admin');
-      } else {
-        router.push('/');
-      }
+      await signInWithPopup(auth, googleProvider);
+      // Let the useEffect handle the routing based on AuthContext's state
     } catch (err: any) {
       console.error(err);
       if (err?.code === 'auth/popup-closed-by-user') {

@@ -12,6 +12,13 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType>({ user: null, loading: true, isAdmin: false });
 
+// أضف أي إيميلات إدارية جديدة هنا داخل هذه القائمة
+export const ADMIN_EMAILS = [
+  "tuwaiqstudio2026@gmail.com",
+  "godiabout57@gmail.com",
+  "kalder.gg@gmail.com"
+];
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -25,14 +32,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => unsubscribe();
   }, []);
 
-  // أضف أي إيميلات إدارية جديدة هنا داخل هذه القائمة
-  const adminEmails = [
-    "tuwaiqstudio2026@gmail.com",
-    "godiabout57@gmail.com",
-    "kalder.gg@gmail.com"
-  ];
+  const isAdmin = user?.email ? ADMIN_EMAILS.includes(user.email.toLowerCase()) : false;
 
-  const isAdmin = user?.email ? adminEmails.includes(user.email.toLowerCase()) : false;
+  useEffect(() => {
+    if (!loading) {
+      if (isAdmin) {
+        document.cookie = 'admin_auth=true; path=/; max-age=86400';
+      } else {
+        document.cookie = 'admin_auth=; path=/; max-age=0';
+      }
+    }
+  }, [isAdmin, loading]);
 
   return (
     <AuthContext.Provider value={{ user, loading, isAdmin }}>
