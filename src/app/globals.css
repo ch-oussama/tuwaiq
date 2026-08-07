@@ -1,0 +1,103 @@
+@import "tailwindcss";
+
+@theme {
+  /* Semantic tokens */
+  --color-background:    var(--background);
+  --color-foreground:    var(--foreground);
+  --color-surface:       var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-border:        var(--border);
+  
+  --color-brand-brown:       var(--brand-brown);
+  --color-brand-brown-light: var(--brand-brown-light);
+  --color-brand-beige:       var(--brand-beige);
+  --color-brand-nude:        var(--brand-nude);
+  --color-brand-nude-dark:   var(--brand-nude-dark);
+  --color-brand-gold:        var(--brand-gold);
+
+  --font-sans: "Tajawal", ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  /* Light Mode Variables */
+  --background: #D9CAB6;
+  --foreground: #2C1810;
+  --surface: #E8DBCD;
+  --surface-hover: #D2C0A8;
+  --border: #C1B09C;
+
+  --brand-brown: #3E2723;
+  --brand-brown-light: #5D4037;
+  --brand-beige: #F5EFE6;
+  --brand-nude: #E6DFD5;
+  --brand-nude-dark: #C8B9B1;
+  --brand-gold: #D4AF37;
+  
+  --nav-bg: rgba(240, 233, 223, 0.92);
+}
+
+.dark {
+  /* Dark Mode Variables */
+  --background: #0D0D0D;
+  --foreground: #F5E8C0;
+  --surface: #1A1A1A;
+  --surface-hover: #242424;
+  --border: #2E2E2E;
+
+  --brand-brown: #a78b66;      /* Gold takes over primary color role */
+  --brand-brown-light: #C8A020;
+  --brand-beige: #1A1A1A;      /* Reversing contrast for cards/buttons */
+  --brand-nude: #111111;
+  --brand-nude-dark: #222222;
+  --brand-gold: #a78b66;
+
+  --nav-bg: rgba(10, 10, 10, 0.92);
+}
+
+html {
+  scroll-behavior: smooth;
+  /* color-scheme handled by next-themes */
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+/* ── Glass helper ── */
+.glass {
+  background: var(--surface);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--border);
+}
+
+/* (NOISE EFFECT WAS REMOVED AS REQUESTED) */
+.bg-noise {
+  position: relative;
+}
+
+/* ── Custom Scrollbar ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track  { background: var(--background); }
+::-webkit-scrollbar-thumb  { background: var(--brand-gold); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--brand-brown-light); }
+
+/* ── Glow utility ── */
+.gold-glow {
+  text-shadow: 0 0 20px rgba(167, 139, 102,0.6), 0 0 60px rgba(167, 139, 102,0.2);
+}
+.box-gold-glow {
+  box-shadow: 0 0 30px rgba(167, 139, 102,0.15), 0 0 80px rgba(167, 139, 102,0.05);
+}
+
+/* Hide Spline Watermark Logo */
+a[href^="https://spline.design"], 
+div:has(> a[href^="https://spline.design"]),
+#logo {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+}
